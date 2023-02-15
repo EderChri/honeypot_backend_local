@@ -101,3 +101,9 @@ class TemplateReplier(Replier):
             res = f.read()
 
         return res + "[bait_end]"
+
+class MyReplier(Replier):
+    name = "MyReplier"
+
+    def _gen_text(self, prompt) -> str:
+        return "test[baiter_end]"

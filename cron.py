@@ -12,13 +12,14 @@ from secret import MAIL_SAVE_DIR, MAIL_HANDLED_DIR
 from archiver import archive
 
 
-def main(crawl=True):
+def main(crawl=False):#True):
     if crawl:
         crawler.fetch_all()
 
     # Handle incoming emails
 
     email_filenames = os.listdir(MAIL_SAVE_DIR)
+    #email_filenames = ["icrabmeats19@gmail.com"]
 
     for email_filename in email_filenames:
         try:
