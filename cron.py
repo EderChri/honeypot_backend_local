@@ -77,6 +77,9 @@ def main(crawl=False):#True):
                 # Add Signature
             res_text += f"\nBest,\n{stored_info.username}"
 
+            # Add in custom signatures for each personality
+            #for replier in Replier
+
             send_result = mailgun.send_email(stored_info.username, stored_info.addr, scam_email, subject, res_text)
             if send_result:
                 print(f"Successfully sent response to {scam_email}")

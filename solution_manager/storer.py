@@ -43,6 +43,7 @@ def store_addr(addr, scam_email, sol_name):
         "to": scam_email,
         "sol": sol_name,
         "username": names.get_first_name()
+        #"username": names.get_full_name(gender="female")
     }
 
     with open(ADDR_SOL_PATH, "w", encoding="utf8") as f:
