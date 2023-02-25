@@ -9,12 +9,12 @@ from .classifier import classify
 from secret import NEO_ENRON_PATH, NEO_RAW_PATH, MAIL_ARCHIVE_DIR, TEMPLATES_DIR, PERSONALITY_TEMPLATES_DIR
 
 text_filters = [
-    RemoveSymbolLineTextFilter(),
-    RemoveInfoLineTextFilter(),
-    RemoveSensitiveInfoTextFilter(),
-    RemoveSpecialPunctuationTextFilter(),
-    RemoveStrangeWord(),
-    MultiSymbolIntegrationTextFilter(),
+    #RemoveSymbolLineTextFilter(),
+    #RemoveInfoLineTextFilter(),
+    #RemoveSensitiveInfoTextFilter(),
+    #RemoveSpecialPunctuationTextFilter(),
+    #RemoveStrangeWord(),
+    #MultiSymbolIntegrationTextFilter(),
 ]
 
 
@@ -38,11 +38,14 @@ class Replier(ABC):
         res = self._gen_text(content)
 
         if "[bait_end]" in res:
+            print("res before split " + str(res))
             res = res.split("[bait_end]", 1)[0]
+            print("res AFTER split " + str(res))
            
         m = re.match(r"^.*[.?!]", res, re.DOTALL)
+        print("THIS IS M " + str(m))
         if m:
-            print("this is m " + str(m))
+            print("this is m " + str(m.groups))
             res = m.group(0)
 
         return res
@@ -61,8 +64,6 @@ def find_name_of_sender(prompt):
     for line_num, line in enumerate(line_array):
         for sign_off in list_email_sign_offs:
             if (line_num_sign_off == -1):
-                print(sign_off)
-                print(line.upper())
                 if sign_off in line.upper():
                     print("sign_off found + " + str(sign_off))
                     sign_off_found = True
@@ -74,29 +75,31 @@ def find_name_of_sender(prompt):
     if sign_off_found:
         #line_num indexed from 1 i think
         possible_name = line_array[line_num + 1]
-        if (possible_name == ""):
-            possible_name = line_array[line_num+2]
-        print(possible_name)
-        possible_name_array = possible_name.split(" ")
-        print(possible_name_array)
-        first_elem = possible_name_array[0].upper()
-        if (("MR" in first_elem) or("MRS" in first_elem) or ("MS" in first_elem) or ("THE" in first_elem)):
-            print("wtaf")
-            name = possible_name_array[1]
-        else:
-            name = first_elem
+        valid_name_pattern = re.compile(r"^[a-zA-Z'\-\s.]+$")
+        if valid_name_pattern.match(possible_name):
+            print("this might be a name " + possible_name)
+            if (possible_name == ""):
+                possible_name = line_array[line_num+2]
+            possible_name_array = possible_name.split(" ")
+            first_elem = possible_name_array[0].upper()
+            if (("MR" in first_elem) or("MRS" in first_elem) or ("MS" in first_elem) or ("THE" in first_elem)):
+                name = possible_name_array[1]
+            else:
+                name = first_elem
+        else: 
+            print("this isn't a valid name " + possible_name)
         name = name.capitalize()
     return name
 
 
 class OldWomanReplier(Replier):
     name = "OldWoman"
-
     def _gen_text(self, prompt) -> str:
         #scam_type = classify(prompt)
+        #if (scam_type)
         scam_type = "LOTTERY"
         personality_template_dir = PERSONALITY_TEMPLATES_DIR + "/OldWoman"
-        #print(scam_type)
+        
         template_dir = os.path.join(personality_template_dir, scam_type)#, random.choice(os.listdir(personality_template_dir)))
 
         print("this is the template directory" + str(template_dir))
@@ -106,12 +109,10 @@ class OldWomanReplier(Replier):
             res = f.read()
 
         scammer_name = find_name_of_sender(prompt)
-
         if (scammer_name!=0):
             res = "Dear " + scammer_name +", \n" + res 
         else:
-            res = "Hi, \n" + res
-        
+            res = "Hi, \n" + res 
         return res + "[bait_end]"
     
 class BusinessManReplier(Replier):

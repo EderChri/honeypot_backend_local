@@ -4,6 +4,8 @@ import mailgun
 
 app = Flask(__name__)
 
+print(__name__)
+
 
 @app.route("/income", methods=["GET", "POST"])
 def income():
