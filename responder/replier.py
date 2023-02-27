@@ -8,6 +8,7 @@ from .gen import gen_text
 from .classifier import classify
 from secret import NEO_ENRON_PATH, NEO_RAW_PATH, MAIL_ARCHIVE_DIR, TEMPLATES_DIR, PERSONALITY_TEMPLATES_DIR
 
+
 text_filters = [
     #RemoveSymbolLineTextFilter(),
     #RemoveInfoLineTextFilter(),
@@ -38,9 +39,7 @@ class Replier(ABC):
         res = self._gen_text(content)
 
         if "[bait_end]" in res:
-            print("res before split " + str(res))
             res = res.split("[bait_end]", 1)[0]
-            print("res AFTER split " + str(res))
            
         m = re.match(r"^.*[.?!]", res, re.DOTALL)
         print("THIS IS M " + str(m))
@@ -56,8 +55,7 @@ class Replier(ABC):
         return self.get_reply(content + "\n[bait_start]\n")
 
 
-def find_name_of_sender(prompt):
-    name = 0
+def find_sign_off(prompt):
     line_array = prompt.split("\n")
     sign_off_found = False
     line_num_sign_off = -1
@@ -71,7 +69,16 @@ def find_name_of_sender(prompt):
                     break
         if sign_off_found:
             break
+    return [sign_off_found, line_num, line_array]
 
+
+
+def find_name_of_sender(prompt):
+    name = 0
+    sign_off_info = find_sign_off(prompt)
+    sign_off_found = sign_off_info[0]
+    line_num = sign_off_info[1]
+    line_array = sign_off_info[2] 
     if sign_off_found:
         #line_num indexed from 1 i think
         possible_name = line_array[line_num + 1]
@@ -86,8 +93,9 @@ def find_name_of_sender(prompt):
                 name = possible_name_array[1]
             else:
                 name = first_elem
-        else: 
-            print("this isn't a valid name " + possible_name)
+        if (name == 0):
+            print("no valid name found")
+    
         name = name.capitalize()
     return name
 
@@ -95,28 +103,56 @@ def find_name_of_sender(prompt):
 class OldWomanReplier(Replier):
     name = "OldWoman"
     def _gen_text(self, prompt) -> str:
-        #scam_type = classify(prompt)
-        #if (scam_type)
+        scam_type = classify(prompt)
+        if (scam_type == "LOTTERY"):
+            print("lottery")
+        elif (scam_type == "LOVE"):
+            print("love")
+        elif (scam_type == "NONTRANS"):
+            print("nontrans")
+        elif (scam_type == "OTHERS"):
+            print("others")
+        elif (scam_type == "TRANS"):
+            print("trans")
+        return "teehee "+ "[bait_end]"
+
+
+        """
         scam_type = "LOTTERY"
         personality_template_dir = PERSONALITY_TEMPLATES_DIR + "/OldWoman"
         
         template_dir = os.path.join(personality_template_dir, scam_type)#, random.choice(os.listdir(personality_template_dir)))
-
+        template_dir = template_dir + "/first_response"
         print("this is the template directory" + str(template_dir))
         target_filename = random.choice(os.listdir(template_dir))
-
         with open(os.path.join(template_dir, target_filename), "r", encoding="utf8") as f:
             res = f.read()
-
         scammer_name = find_name_of_sender(prompt)
         if (scammer_name!=0):
             res = "Dear " + scammer_name +", \n" + res 
         else:
             res = "Hi, \n" + res 
+        """
         return res + "[bait_end]"
     
-class BusinessManReplier(Replier):
-    name = "BusinessMan"
+class BusinessPersonReplier(Replier):
+    name = "BusinessPerson"
+
+    def _gen_text(self, prompt) -> str:
+        scam_type = classify(prompt)
+        personality_template_dir = PERSONALITY_TEMPLATES_DIR + "/BusinessPerson"
+        print(scam_type)
+        template_dir = os.path.join(personality_template_dir, scam_type)
+        target_filename = random.choice(os.listdir(template_dir))
+
+        with open(os.path.join(template_dir, target_filename), "r", encoding="utf8") as f:
+            res = f.read()
+            
+        return res + "[bait_end]"
+    
+
+class ProfitFocusedManReplier(Replier):
+    name = "ProfitFocusedMan"
 
     def _gen_text(self, prompt) -> str:
         scam_type = classify(prompt)
@@ -127,8 +163,23 @@ class BusinessManReplier(Replier):
 
         with open(os.path.join(template_dir, target_filename), "r", encoding="utf8") as f:
             res = f.read()
-        
+            
+        return res + "[bait_end]"
     
+
+class NaiveYouthReplier(Replier):
+    name = "NaiveYouth"
+
+    def _gen_text(self, prompt) -> str:
+        scam_type = classify(prompt)
+        personality_template_dir = PERSONALITY_TEMPLATES_DIR + "/BusinessMan"
+        print(scam_type)
+        template_dir = os.path.join(personality_template_dir, scam_type)
+        target_filename = random.choice(os.listdir(template_dir))
+
+        with open(os.path.join(template_dir, target_filename), "r", encoding="utf8") as f:
+            res = f.read()
+            
         return res + "[bait_end]"
 
 """

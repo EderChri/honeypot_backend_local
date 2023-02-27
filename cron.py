@@ -11,6 +11,20 @@ import solution_manager
 from secret import MAIL_SAVE_DIR, MAIL_HANDLED_DIR
 from archiver import archive
 
+def add_signature(stored_info, res_text):
+    if (stored_info.sol =="OldWoman"):
+        res_text += f"\n Sincerely,\n{stored_info.username}"
+    if (stored_info.sol =="BusinessPerson"):
+        res_text += f"\n Kind Regards,\n{stored_info.username} {stored_info.lastname}\n___________________________________\n"
+        res_text += f"{stored_info.username} {stored_info.lastname},\nSenior Financial Manager,\n"
+        res_text += "vodafone.co.uk/business\n1 Kingdom St, London,\nGreater London"
+    if (stored_info.sol =="ProfitFocusedMan"):
+        res_text += f"\n Regards,\n{stored_info.username}"
+    if (stored_info.sol =="NaiveYouth"):
+        res_text += f"\n thanks!\n{stored_info.username} :)"
+    return res_text
+
+
 
 def main(crawl = True):
     if crawl:
@@ -74,10 +88,9 @@ def main(crawl = True):
                 return
 
                 # Add Signature
-            res_text += f"\nBest,\n{stored_info.username}"
 
             # Add in custom signatures for each personality
-            #for replier in Replier
+            res_text = add_signature(stored_info, res_text)
 
             send_result = mailgun.send_email(stored_info.username, stored_info.addr, scam_email, subject, res_text)
             if send_result:
