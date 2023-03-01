@@ -6,7 +6,7 @@ import os
 import names
 from collections import namedtuple
 
-StoredInfo = namedtuple("StoredInfo", ["addr", "to", "sol", "username", "lastname"])
+StoredInfo = namedtuple("StoredInfo", ["addr", "to", "sol", "username", "lastname"])#, "classification", "used_templates"])
 
 if not os.path.exists(os.path.dirname(ADDR_SOL_PATH)):
     os.makedirs(os.path.dirname(ADDR_SOL_PATH))
@@ -49,7 +49,9 @@ def store_addr(addr, scam_email, sol_name):
         "to": scam_email,
         "sol": sol_name,
         "username": names.get_first_name(gender = replierGender),
-        "lastname": names.get_last_name()
+        "lastname": names.get_last_name(),
+        #"classification": ,
+        #"used_templates":
         #"username": names.get_full_name(gender="female")
     }
 
@@ -73,4 +75,4 @@ def get_stored_info(addr, scam_email) -> Optional[StoredInfo]:
         obj = d[addr]
     if obj is None:
         return None
-    return StoredInfo(addr, obj["to"], obj["sol"], obj["username"], obj["lastname"])
+    return StoredInfo(addr, obj["to"], obj["sol"], obj["username"], obj["lastname"])#, obj["classification"], obj["used_templates"])

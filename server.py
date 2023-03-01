@@ -2,7 +2,7 @@ from flask import Flask, request
 
 import mailgun
 
-app = Flask(__name__)
+app = Flask(__name__)   
 
 print(__name__)
 
@@ -11,6 +11,7 @@ print(__name__)
 def income():
     if request.method == "POST":
         mailgun.on_receive(request.form)
+        print("YESYEYSYEYSYEYSYEYSYEY")
     return "ok"
 
 

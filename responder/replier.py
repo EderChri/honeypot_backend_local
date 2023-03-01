@@ -10,12 +10,12 @@ from secret import NEO_ENRON_PATH, NEO_RAW_PATH, MAIL_ARCHIVE_DIR, TEMPLATES_DIR
 
 
 text_filters = [
-    #RemoveSymbolLineTextFilter(),
-    #RemoveInfoLineTextFilter(),
-    #RemoveSensitiveInfoTextFilter(),
-    #RemoveSpecialPunctuationTextFilter(),
-    #RemoveStrangeWord(),
-    #MultiSymbolIntegrationTextFilter(),
+    RemoveSymbolLineTextFilter(),
+    RemoveInfoLineTextFilter(),
+    RemoveSensitiveInfoTextFilter(),
+    RemoveSpecialPunctuationTextFilter(),
+    RemoveStrangeWord(),
+    MultiSymbolIntegrationTextFilter(),
 ]
 
 
@@ -35,6 +35,10 @@ class Replier(ABC):
     def get_reply(self, content):
         for text_filter in text_filters:
             content = text_filter.filter(content)
+
+        print("I AM INSIDE GET_REPLY")
+        print("THIS IS CONTENT " + str(content) )
+        print("I am TRYING TO CLASSIFY IT HERE " + str(classify(content)))
 
         res = self._gen_text(content)
 
@@ -100,6 +104,11 @@ def find_name_of_sender(prompt):
     return name
 
 
+def LotteryStructure():
+    #keep a log of what templates have been sent!, add to the storer?
+    print("poop")
+
+
 class OldWomanReplier(Replier):
     name = "OldWoman"
     def _gen_text(self, prompt) -> str:
@@ -156,7 +165,7 @@ class ProfitFocusedManReplier(Replier):
 
     def _gen_text(self, prompt) -> str:
         scam_type = classify(prompt)
-        personality_template_dir = PERSONALITY_TEMPLATES_DIR + "/BusinessMan"
+        personality_template_dir = PERSONALITY_TEMPLATES_DIR + "/ProfitFocusedMan"
         print(scam_type)
         template_dir = os.path.join(personality_template_dir, scam_type)
         target_filename = random.choice(os.listdir(template_dir))
@@ -172,7 +181,7 @@ class NaiveYouthReplier(Replier):
 
     def _gen_text(self, prompt) -> str:
         scam_type = classify(prompt)
-        personality_template_dir = PERSONALITY_TEMPLATES_DIR + "/BusinessMan"
+        personality_template_dir = PERSONALITY_TEMPLATES_DIR + "/NaiveYouth"
         print(scam_type)
         template_dir = os.path.join(personality_template_dir, scam_type)
         target_filename = random.choice(os.listdir(template_dir))
