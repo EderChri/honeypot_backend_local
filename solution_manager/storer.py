@@ -35,6 +35,25 @@ def scam_exists(addr) -> bool:
     return False
 
 
+def update_used_templates(current_template, addr):
+
+    print("THIS IS THE addr " + str(addr))
+    with open(ADDR_SOL_PATH, "r", encoding="utf8") as f:
+        record = json.load(f)
+
+    #record.pop(addr, "This value does not exist")
+    #print("popped!")
+
+    record[addr]['used_templates'].append(current_template)
+    print(record)
+
+
+
+    return "ok"
+
+
+
+
 def store_addr(addr, scam_email, sol_name, classification):
     with open(ADDR_SOL_PATH, "r", encoding="utf8") as f:
         d = json.load(f)
@@ -51,7 +70,7 @@ def store_addr(addr, scam_email, sol_name, classification):
         "username": names.get_first_name(gender = replierGender),
         "lastname": names.get_last_name(),
         "classification": classification,
-        "used_templates": {}
+        "used_templates": []
     }
 
     with open(ADDR_SOL_PATH, "w", encoding="utf8") as f:

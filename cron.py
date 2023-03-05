@@ -62,7 +62,10 @@ def main(crawl = True):
                 print("This email is just crawled, using random replier")
                 replier = responder.get_replier_randomly()
             
-                classification = classify(text)
+                #classification = classify(text)
+                classification = "LOVE"
+
+
 
                 bait_email = solution_manager.gen_new_addr(scam_email, replier.name, classification)
                 stored_info = solution_manager.get_stored_info(bait_email, scam_email)

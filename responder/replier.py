@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from text_utils.text_filter import *
 from .gen import gen_text
 from .classifier import classify
-from solution_manager.storer import get_stored_info
+from solution_manager.storer import get_stored_info, update_used_templates
 from secret import NEO_ENRON_PATH, NEO_RAW_PATH, MAIL_ARCHIVE_DIR, TEMPLATES_DIR, PERSONALITY_TEMPLATES_DIR
 
 
@@ -104,32 +104,52 @@ def find_name_of_sender(prompt):
     return name
 
 
-def LotteryStructure():
+def LoveStructure(used_templates, addr, sol_name):
     #keep a log of what templates have been sent!, add to the storer?
-    print("poop")
 
+
+    if (used_templates == []):
+        template_dir = os.path.join(os.path.join(PERSONALITY_TEMPLATES_DIR, sol_name), "LOVE/first_response")
+        target_filename = random.choice(os.listdir(template_dir))
+        target_file_path = os.path.join(template_dir, target_filename) 
+        with open(target_file_path, "r", encoding="utf8") as f:
+            res = f.read()
+        #TODO create a function to easily update the used_templates in solution manager
+        #delete old json entry and upload a new one?
+        update_used_templates(target_file_path, addr)
+    
+    #TODO implement structure drafted in wb (e.g. every 3 emails send an anecdotal message etc)
+    
+    
+    return "poop"
 
 class OldWomanReplier(Replier):
     name = "OldWoman"
-    #get_stored_info()
-    
 
     def _gen_text(self, prompt, addr, bait_email) -> str:
-        print("IM IN GRANNY@S HOUSE : " + str(addr) + " " + str(bait_email))
-        scam_type = get_stored_info(bait_email, addr).classification
+        stored_info = get_stored_info(bait_email, addr)
+        scam_type = stored_info.classification
+        used_templates = stored_info.used_templates
+        addr = stored_info.addr
 
-        print("scam type = " + str(scam_type))
+        scam_type ="LOVE"
+
+        res = "wee"
+    
+
         if (scam_type == "LOTTERY"):
-            print("lottery")
+            #res = LotteryStructure(used_templates)
+            res = "wee"
         elif (scam_type == "LOVE"):
-            print("love")
+            print(self.name)
+            res = LoveStructure(used_templates, addr, self.name)
         elif (scam_type == "NONTRANS"):
             print("nontrans")
         elif (scam_type == "OTHERS"):
             print("others")
         elif (scam_type == "TRANS"):
             print("trans")
-        return "teehee "+ "[bait_end]"
+        return  res + "[bait_end]"
 
 
         """

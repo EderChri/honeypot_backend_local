@@ -11,7 +11,7 @@ print(__name__)
 def income():
     if request.method == "POST":
         mailgun.on_receive(request.form)
-        print("YESYEYSYEYSYEYSYEYSYEY")
+        print("received POST")
     return "ok"
 
 
