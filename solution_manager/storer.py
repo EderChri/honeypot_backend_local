@@ -6,7 +6,7 @@ import os
 import names
 from collections import namedtuple
 
-StoredInfo = namedtuple("StoredInfo", ["addr", "to", "sol", "username", "lastname"])#, "classification", "used_templates"])
+StoredInfo = namedtuple("StoredInfo", ["addr", "to", "sol", "username", "lastname", "classification", "used_templates"])
 
 if not os.path.exists(os.path.dirname(ADDR_SOL_PATH)):
     os.makedirs(os.path.dirname(ADDR_SOL_PATH))
@@ -35,7 +35,7 @@ def scam_exists(addr) -> bool:
     return False
 
 
-def store_addr(addr, scam_email, sol_name):
+def store_addr(addr, scam_email, sol_name, classification):
     with open(ADDR_SOL_PATH, "r", encoding="utf8") as f:
         d = json.load(f)
 
@@ -50,9 +50,8 @@ def store_addr(addr, scam_email, sol_name):
         "sol": sol_name,
         "username": names.get_first_name(gender = replierGender),
         "lastname": names.get_last_name(),
-        #"classification": ,
-        #"used_templates":
-        #"username": names.get_full_name(gender="female")
+        "classification": classification,
+        "used_templates": {}
     }
 
     with open(ADDR_SOL_PATH, "w", encoding="utf8") as f:
@@ -75,4 +74,4 @@ def get_stored_info(addr, scam_email) -> Optional[StoredInfo]:
         obj = d[addr]
     if obj is None:
         return None
-    return StoredInfo(addr, obj["to"], obj["sol"], obj["username"], obj["lastname"])#, obj["classification"], obj["used_templates"])
+    return StoredInfo(addr, obj["to"], obj["sol"], obj["username"], obj["lastname"], obj["classification"], obj["used_templates"])

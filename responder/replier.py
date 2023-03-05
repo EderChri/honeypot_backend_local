@@ -38,7 +38,7 @@ class Replier(ABC):
 
         print("I AM INSIDE GET_REPLY")
         print("THIS IS CONTENT " + str(content) )
-        print("I am TRYING TO CLASSIFY IT HERE " + str(classify(content)))
+    #print("I am TRYING TO CLASSIFY IT HERE " + str(classify(content)))
 
         res = self._gen_text(content)
 

@@ -25,6 +25,7 @@ NEO_ENRON_PATH = "./models/neo_enron"
 NEO_RAW_PATH = "./models/neo_raw"
 CLASSIFIER_PATH = "./models/classifier/final-model.pt"
 TEMPLATES_DIR = "responder/templates"
+PERSONALITY_TEMPLATES_DIR = "responder/personalityTemplates"
 # CRAWLER CONF
 CRAWLER_PROG_DIR = "./cache"
 MAX_PAGE = 20

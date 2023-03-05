@@ -2,7 +2,7 @@ from .storer import store_addr, addr_exists, get_stored_info, scam_exists
 from .gen import get_random_addr
 
 
-def gen_new_addr(scam_email, sol_name):
+def gen_new_addr(scam_email, sol_name, classification):
     new_addr = get_random_addr()
-    store_addr(new_addr, scam_email, sol_name)
+    store_addr(new_addr, scam_email, sol_name, classification)
     return new_addr
