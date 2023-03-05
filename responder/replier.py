@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from text_utils.text_filter import *
 from .gen import gen_text
 from .classifier import classify
+from solution_manager.storer import get_stored_info
 from secret import NEO_ENRON_PATH, NEO_RAW_PATH, MAIL_ARCHIVE_DIR, TEMPLATES_DIR, PERSONALITY_TEMPLATES_DIR
 
 
@@ -28,19 +29,17 @@ class Replier(ABC):
     name = "AbstractReplier"
 
     @abstractmethod
-    def _gen_text(self, prompt) -> str:
+    def _gen_text(self, prompt, addr, bait_email) -> str:
         print(f"Generating reply using {self.name}")
         return prompt
 
-    def get_reply(self, content):
+    def get_reply(self, content, addr, bait_email):
         for text_filter in text_filters:
             content = text_filter.filter(content)
 
-        print("I AM INSIDE GET_REPLY")
-        print("THIS IS CONTENT " + str(content) )
     #print("I am TRYING TO CLASSIFY IT HERE " + str(classify(content)))
 
-        res = self._gen_text(content)
+        res = self._gen_text(content, addr, bait_email)
 
         if "[bait_end]" in res:
             res = res.split("[bait_end]", 1)[0]
@@ -53,10 +52,11 @@ class Replier(ABC):
 
         return res
 
-    def get_reply_by_his(self, addr):
+    def get_reply_by_his(self, addr, bait_email):
+        print("THIS IS NAME HERE" + str(addr))
         with open(os.path.join(MAIL_ARCHIVE_DIR, addr + ".his"), "r", encoding="utf8") as f:
             content = f.read()
-        return self.get_reply(content + "\n[bait_start]\n")
+        return self.get_reply(content + "\n[bait_start]\n",addr, bait_email)
 
 
 def find_sign_off(prompt):
@@ -111,8 +111,14 @@ def LotteryStructure():
 
 class OldWomanReplier(Replier):
     name = "OldWoman"
-    def _gen_text(self, prompt) -> str:
-        scam_type = classify(prompt)
+    #get_stored_info()
+    
+
+    def _gen_text(self, prompt, addr, bait_email) -> str:
+        print("IM IN GRANNY@S HOUSE : " + str(addr) + " " + str(bait_email))
+        scam_type = get_stored_info(bait_email, addr).classification
+
+        print("scam type = " + str(scam_type))
         if (scam_type == "LOTTERY"):
             print("lottery")
         elif (scam_type == "LOVE"):

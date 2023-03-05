@@ -83,7 +83,7 @@ def main(crawl = True):
                     continue
 
             try:
-                res_text = replier.get_reply_by_his(scam_email)
+                res_text = replier.get_reply_by_his(scam_email, bait_email)
             except Exception as e:
                 print("GENERATING ERROR")
                 print(e)
