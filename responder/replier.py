@@ -19,11 +19,24 @@ text_filters = [
     MultiSymbolIntegrationTextFilter(),
 ]
 
+grooming_stage_indicators = ["LOVE", "I LOVE YOU", "TRUST", "NEED YOU", "SEND GIFT", "SEND YOU A PRESENT", 
+                             "SEND YOU A GIFT", "SEND PRESENT", "PRESENT", "GIFT", "TELL YOU A SECRET", "SECRET",
+                            "CONFIDE" ]
+
+ranting_indicators = ["STUPID", "IDIOT", "MORON", "FUCKER", "CUNT", "SHITHEAD", "HATE", "JUST SEND MONEY", 
+                      "ANGRY", "FRUSTRATED", "UPSET", "ANNOYED", "DISAPPOINTED",
+                      "UNHAPPY", "FED UP", "FUCK", "KILL"]
+
+send_money_indicators = ["SEND MONEY", "GBP", "USD", "EUR", "£", "$", "€", "WESTERN UNION", "TRANSFER", "BANK",
+                         "WORLD REMIT", "MONEY GRAM", "PAYPAL", "BITCOIN", "STEAM CARD", "STEAM GIFT CARD",
+                         "WIRE"]
+
+move_off_email_indicators = ["SEND NUMBER", "SEND PHONE NUMBER", "YOUR PHONE NUMBER", "SKYPE", "VIDEO CALL",
+                             "YOUR ADDRESS", "YOUR FACEBOOK", "DO YOU HAVE FACEBOOK" ]
 
 list_email_sign_offs = ["YOURS SINCERELY", "SINCERELY", "FAITHFULLY", "YOURS FAITHFULLY", 
                         "BEST,", "KIND REGARDS", "KINDEST REGARDS", "REGARDS,", "BEST WISHES",
-                        "YOURS,\n", "THANK YOU,\n", "THANKS,\n", "BEST REGARDS", "THANKS\n",
-                        ]
+                        "YOURS,\n", "THANK YOU,\n", "THANKS,\n", "BEST REGARDS", "THANKS\n",]
 
 class Replier(ABC):
     name = "AbstractReplier"
@@ -37,17 +50,13 @@ class Replier(ABC):
         for text_filter in text_filters:
             content = text_filter.filter(content)
 
-    #print("I am TRYING TO CLASSIFY IT HERE " + str(classify(content)))
-
         res = self._gen_text(content, addr, bait_email)
 
         if "[bait_end]" in res:
             res = res.split("[bait_end]", 1)[0]
            
         m = re.match(r"^.*[.?!]", res, re.DOTALL)
-        print("THIS IS M " + str(m))
         if m:
-            print("this is m " + str(m.groups))
             res = m.group(0)
 
         return res
@@ -104,37 +113,110 @@ def find_name_of_sender(prompt):
     return name
 
 
-def LoveStructure(used_templates, addr, sol_name):
-    #keep a log of what templates have been sent!, add to the storer?
+def append_dir_find_file(used_templates, sol_name, addr, specific_struct_dir):
+    template_dir = os.path.join(os.path.join(PERSONALITY_TEMPLATES_DIR, sol_name), specific_struct_dir)
+    target_filename = random.choice(os.listdir(template_dir)) 
+    res = choose_and_add_template(target_filename, used_templates, template_dir, addr)
+    return res
+
+
+#chooses a random template until one is found that hasn't already been used (if cant find one after)
+#25 attempts then it just reuses a template rather than be stuck in a while loop
+def choose_and_add_template(target_filename, used_templates, template_dir, addr):
+    target_file_path = os.path.join(template_dir, target_filename)
+    loop_counter = 0
+    if target_file_path in used_templates:
+        while (target_file_path in used_templates) and (loop_counter <=25):
+            target_filename = random.choice(os.listdir(template_dir))
+            target_file_path = os.path.join(template_dir, target_filename)
+            loop_counter +=1        
+    with open(target_file_path, "r", encoding="utf8") as f:
+        res = f.read()
+    update_used_templates(target_file_path, addr)
+    return res
+
+#find the pcnt of capitalised chars
+def find_capitalised_percent(prompt):
+    cap_count = 0
+    for char in prompt:
+        if char.isupper():
+            cap_count += 1
+    return(cap_count/len(prompt))
+
+def LoveStructure(used_templates, addr, sol_name, prompt):
+    capitalised_prompt = prompt.upper()
+    #check if grooming_stage has previously been entered
+    grooming_stage_bool = False
+    pcnt_cap = find_capitalised_percent(prompt)
+    for template_used in used_templates:
+            print("this is template used " + str(template_used))
+            if ("grooming_stage" in template_used):
+                grooming_stage_bool=True
+
+
+
+
+    
+
+
+
+
+
+
+
+
 
 
     if (used_templates == []):
-        template_dir = os.path.join(os.path.join(PERSONALITY_TEMPLATES_DIR, sol_name), "LOVE/first_response")
-        target_filename = random.choice(os.listdir(template_dir))
-        target_file_path = os.path.join(template_dir, target_filename) 
-        with open(target_file_path, "r", encoding="utf8") as f:
-            res = f.read()
-        #TODO create a function to easily update the used_templates in solution manager
-        #delete old json entry and upload a new one?
-        update_used_templates(target_file_path, addr)
-    
-    #TODO implement structure drafted in wb (e.g. every 3 emails send an anecdotal message etc)
-    
-    
-    return "poop"
+        res = append_dir_find_file(used_templates, sol_name, addr, "LOVE/first_response")
+    # rant if there are any ranting word indicators, or there is an excessive use of exclamation marks
+    # or if over 35% of the email is capitalised
+    elif (any(word in capitalised_prompt for word in move_off_email_indicators)):
+        res = append_dir_find_file(used_templates, sol_name, addr, "LOVE/move_off_email")
+    elif ((any(word in capitalised_prompt for word in ranting_indicators) or (prompt.count("!") >=5)) or (pcnt_cap >=0.35)): 
+        res = append_dir_find_file(used_templates, sol_name, addr, "LOVE/rant_response")
+    elif (any(word in capitalised_prompt for word in send_money_indicators)):
+        print("what the actual hell")
+        print(capitalised_prompt)
+        res = append_dir_find_file(used_templates, sol_name, addr, "LOVE/send_money")
+    elif (((any(word in capitalised_prompt for word in grooming_stage_indicators)) or (grooming_stage_bool == True)) or len(used_templates) > 5):
+        # grooming stage find if already confessed secret and/or confessed love
+        lovey_emails_count = 0
+        confess_secret_bool = False
+        for template_used in used_templates:
+            if ("lovey_emails" in template_used):
+                lovey_emails_count +=1
+            elif ("confess_secret" in template_used):
+                confess_secret_bool = True
+        # if you've sent all the lovey emails and not confessed your secret, confess
+        if ((lovey_emails_count >=2) and (confess_secret_bool == False)):
+            res = append_dir_find_file(used_templates, sol_name, addr, "LOVE/grooming_stage/confess_secret")
+            #confess secret 
+        elif (lovey_emails_count<2):
+            res = append_dir_find_file(used_templates, sol_name, addr, "LOVE/grooming_stage/lovey_emails")
+            #send a lovey_email
+        else: 
+            #send a miscellaneous email
+            res = append_dir_find_file(used_templates, sol_name, addr, "LOVE/grooming_stage/misc_love")
+    else:
+        #if its early days ... i.e. less than 5 responses -> if 5 or more we force the grooming stage 
+        res = append_dir_find_file(used_templates, sol_name, addr, "LOVE/early_days_response")   
+    return res
 
 class OldWomanReplier(Replier):
     name = "OldWoman"
 
     def _gen_text(self, prompt, addr, bait_email) -> str:
+        index_to_cut_before = (prompt.upper()).rfind("[SCAM_START]")
+
+        prompt_only_contain_last_email =  prompt[index_to_cut_before:]
+
         stored_info = get_stored_info(bait_email, addr)
         scam_type = stored_info.classification
         used_templates = stored_info.used_templates
         addr = stored_info.addr
 
         scam_type ="LOVE"
-
-        res = "wee"
     
 
         if (scam_type == "LOTTERY"):
@@ -142,7 +224,7 @@ class OldWomanReplier(Replier):
             res = "wee"
         elif (scam_type == "LOVE"):
             print(self.name)
-            res = LoveStructure(used_templates, addr, self.name)
+            res = LoveStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
         elif (scam_type == "NONTRANS"):
             print("nontrans")
         elif (scam_type == "OTHERS"):

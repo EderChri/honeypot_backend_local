@@ -37,19 +37,14 @@ def scam_exists(addr) -> bool:
 
 def update_used_templates(current_template, addr):
 
-    print("THIS IS THE addr " + str(addr))
     with open(ADDR_SOL_PATH, "r", encoding="utf8") as f:
         record = json.load(f)
 
-    #record.pop(addr, "This value does not exist")
-    #print("popped!")
-
     record[addr]['used_templates'].append(current_template)
-    print(record)
 
+    with open(ADDR_SOL_PATH, "w") as f:
+        json.dump(record, f)
 
-
-    return "ok"
 
 
 
