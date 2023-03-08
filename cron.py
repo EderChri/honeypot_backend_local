@@ -63,7 +63,7 @@ def main(crawl = True):
                 replier = responder.get_replier_randomly()
             
                 #classification = classify(text)
-                classification = "LOVE"
+                classification = "TRANS"
 
 
 
