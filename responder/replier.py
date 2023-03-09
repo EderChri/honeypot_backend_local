@@ -414,49 +414,95 @@ class OldWomanReplier(Replier):
 class BusinessPersonReplier(Replier):
     name = "BusinessPerson"
 
-    def _gen_text(self, prompt) -> str:
-        scam_type = classify(prompt)
-        personality_template_dir = PERSONALITY_TEMPLATES_DIR + "/BusinessPerson"
-        print(scam_type)
-        template_dir = os.path.join(personality_template_dir, scam_type)
-        target_filename = random.choice(os.listdir(template_dir))
+    def _gen_text(self, prompt, addr, bait_email) -> str:
+        index_to_cut_before = (prompt.upper()).rfind("[SCAM_START]")
 
-        with open(os.path.join(template_dir, target_filename), "r", encoding="utf8") as f:
-            res = f.read()
-            
-        return res + "[bait_end]"
+        prompt_only_contain_last_email =  prompt[index_to_cut_before:]
+
+        stored_info = get_stored_info(bait_email, addr)
+        scam_type = stored_info.classification
+        used_templates = stored_info.used_templates
+        addr = stored_info.addr
+
+        if (scam_type == "LOTTERY"):
+            res = LotteryStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
+        elif (scam_type == "LOVE"):
+            print(self.name)
+            res = LoveStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
+        elif (scam_type == "NONTRANS") or (scam_type == "OTHERS"):
+            res = NonTransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
+        elif (scam_type == "TRANS"):
+            res = TransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
+     
+        scammer_name = find_name_of_sender(prompt[index_to_cut_before:])        
+        if (scammer_name!=0):
+            res = "Dear " + scammer_name +", \n" + res 
+        else:
+            res = "Hi, \n" + res 
+        return  res + "[bait_end]"
+
     
 
 class ProfitFocusedManReplier(Replier):
     name = "ProfitFocusedMan"
+    def _gen_text(self, prompt, addr, bait_email) -> str:
+        index_to_cut_before = (prompt.upper()).rfind("[SCAM_START]")
 
-    def _gen_text(self, prompt) -> str:
-        scam_type = classify(prompt)
-        personality_template_dir = PERSONALITY_TEMPLATES_DIR + "/ProfitFocusedMan"
-        print(scam_type)
-        template_dir = os.path.join(personality_template_dir, scam_type)
-        target_filename = random.choice(os.listdir(template_dir))
+        prompt_only_contain_last_email =  prompt[index_to_cut_before:]
 
-        with open(os.path.join(template_dir, target_filename), "r", encoding="utf8") as f:
-            res = f.read()
-            
-        return res + "[bait_end]"
-    
+        stored_info = get_stored_info(bait_email, addr)
+        scam_type = stored_info.classification
+        used_templates = stored_info.used_templates
+        addr = stored_info.addr
+
+        if (scam_type == "LOTTERY"):
+            res = LotteryStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
+        elif (scam_type == "LOVE"):
+            print(self.name)
+            res = LoveStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
+        elif (scam_type == "NONTRANS") or (scam_type == "OTHERS"):
+            res = NonTransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
+        elif (scam_type == "TRANS"):
+            res = TransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
+     
+        scammer_name = find_name_of_sender(prompt[index_to_cut_before:])        
+        if (scammer_name!=0):
+            res = "Dear " + scammer_name +", \n" + res 
+        else:
+            res = "Hi, \n" + res 
+        return  res + "[bait_end]"
+
 
 class NaiveYouthReplier(Replier):
     name = "NaiveYouth"
 
-    def _gen_text(self, prompt) -> str:
-        scam_type = classify(prompt)
-        personality_template_dir = PERSONALITY_TEMPLATES_DIR + "/NaiveYouth"
-        print(scam_type)
-        template_dir = os.path.join(personality_template_dir, scam_type)
-        target_filename = random.choice(os.listdir(template_dir))
+    def _gen_text(self, prompt, addr, bait_email) -> str:
+        index_to_cut_before = (prompt.upper()).rfind("[SCAM_START]")
 
-        with open(os.path.join(template_dir, target_filename), "r", encoding="utf8") as f:
-            res = f.read()
-            
-        return res + "[bait_end]"
+        prompt_only_contain_last_email =  prompt[index_to_cut_before:]
+
+        stored_info = get_stored_info(bait_email, addr)
+        scam_type = stored_info.classification
+        used_templates = stored_info.used_templates
+        addr = stored_info.addr
+
+        if (scam_type == "LOTTERY"):
+            res = LotteryStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
+        elif (scam_type == "LOVE"):
+            print(self.name)
+            res = LoveStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
+        elif (scam_type == "NONTRANS") or (scam_type == "OTHERS"):
+            res = NonTransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
+        elif (scam_type == "TRANS"):
+            res = TransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
+     
+        scammer_name = find_name_of_sender(prompt[index_to_cut_before:])        
+        if (scammer_name!=0):
+            res = "Heya " + scammer_name +", \n" + res 
+        else:
+            res = "Hi, \n" + res 
+        return  res + "[bait_end]"
+
 
 """
 class NeoEnronReplier(Replier):
