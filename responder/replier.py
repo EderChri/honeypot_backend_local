@@ -29,14 +29,15 @@ ranting_indicators = [" STUPID", " IDIOT", " MORON", " FUCKER", " CUNT", " SHITH
 
 send_money_indicators = ["SEND MONEY", "GBP ", "USD ", " EUR ", "£", "$", "€", "WESTERN UNION ", "TRANSFER ", "BANK",
                          "WORLD REMIT", "MONEY GRAM ", "MONEY-GRAM", "PAYPAL ", "BITCOIN ", " BTC ", "STEAM CARD ", "STEAM GIFT CARD ",
-                         " WIRE", " FEE.", "FEE,", " FEE ", " DOLLAR", " EURO ", " POUND "]
+                         " WIRE", " FEE.", "FEE,", " FEE ", " DOLLAR", " EURO ", " POUND ",
+                         "RELEASE FUNDS", "RELEASE THE FUNDS"]
 
 move_off_email_indicators = ["SEND NUMBER", "SEND PHONE NUMBER", "YOUR PHONE NUMBER", " SKYPE", "VIDEO CALL",
                              "YOUR ADDRESS", "YOUR FACEBOOK", "DO YOU HAVE FACEBOOK" ]
 
 urgency_indicators = [" SEND MONEY NOW", " URGENT", " NO TIME ", " LITTLE TIME", " ACT NOW",
                       " LIMITED TIME ", " HURRY ", " QUICKLY", " ACT FAST", " FINAL NOTICE",
-                       " TIME IS RUNNING OUT",  ]
+                       " TIME IS RUNNING OUT", "RIGHT NOW" ]
 
 list_email_sign_offs = ["YOURS SINCERELY", "SINCERELY", "FAITHFULLY", "YOURS FAITHFULLY", 
                         "BEST,", "KIND REGARDS", "KINDEST REGARDS", "REGARDS,", "BEST WISHES",
@@ -53,9 +54,11 @@ monetary_reward_indicators = [" MILLION", " THOUSAND", " WON", " CONGRATULATION"
 inheritance_indicators = ["INHERITANCE", "DECEASED FOREIGNER", "DEAD FOREIGNER",
                           "DEAD FAMILY MEMBER", "DECEASED FAMILY MEMBER"]
 
+personal_convince_travel = [" PLANE TICKET", " AIRPLANE", " AEROPLANE", " FLIGHT", " ACCOMODATION"]
+
 business_deal_indicators = ["PROFIT", "SPLIT", "SHARE THE ", "BUSINESS DEAL"]
 
-loan_indicators = [" LOAN", " INTEREST RATE"]
+loan_indicators = [" LOAN", "INTEREST RATE"]
 
 
 dream_job_indicators = ["WORK FROM HOME" , "NO EXPERIENCE", "GET RICH QUICK", "EASY MONEY",
@@ -64,8 +67,9 @@ dream_job_indicators = ["WORK FROM HOME" , "NO EXPERIENCE", "GET RICH QUICK", "E
 
 
 eliciting_sympathy_indicators = ["PLEASE HELP", " DIED", "STUCK IN", " IM STUCK", "I AM STUCK", " DYING ",
-                       " STRUGGLING", " STRANDED", " URGENT", " DESPARATE", "FINANCIAL HARDSHIP",
-                        " SICK ", " ORPHAN", " TRAGEDY", " HOMELESS", " FIRED", " LOST MY JOB" ]
+                       "STRUGGLING", " STRANDED", " URGENT", " DESPERATE", "FINANCIAL HARDSHIP",
+                        " SICK ", " ORPHAN", " TRAGEDY", " HOMELESS", " FIRED", " LOST MY JOB",
+                         "MUGGED", "ATTACKED" ]
 
 eliciting_fear_indicators = [" POLICE", " ARREST", " LEGAL ACTION", " TAKE YOU TO COURT",
                              " CRIME", " CONSEQUENCES", " CRIMINAL", " DETENTION",
@@ -188,15 +192,12 @@ def LoveStructure(used_templates, addr, sol_name, prompt):
                 grooming_stage_bool = True
     if (used_templates == []):
         res = append_dir_find_file(used_templates, sol_name, addr, "LOVE/first_response")
-    # if there is a link in the email, respond that you don't want to / can't open it 
-    elif (("HTTP://" or "HTTPS://") in prompt):
-        res = append_dir_find_file(used_templates, sol_name, addr, "LOVE/link_response")
     # rant if there are any ranting word indicators, or there is an excessive use of exclamation marks
     # or if over 35% of the email is capitalised
     elif (any(word in capitalised_prompt for word in move_off_email_indicators)):
-        res = append_dir_find_file(used_templates, sol_name, addr, "LOVE/move_off_email")
+        res = append_dir_find_file(used_templates, sol_name, addr, "move_off_email")
     elif ((any(word in capitalised_prompt for word in ranting_indicators) or (prompt.count("!") >=5)) or (pcnt_cap >=0.35)): 
-        res = append_dir_find_file(used_templates, sol_name, addr, "LOVE/rant_response")
+        res = append_dir_find_file(used_templates, sol_name, addr, "rant_response")
     elif (any(word in capitalised_prompt for word in send_money_indicators)):
         res = append_dir_find_file(used_templates, sol_name, addr, "LOVE/send_money")
     elif (((any(word in capitalised_prompt for word in grooming_stage_indicators)) or (grooming_stage_bool == True)) or len(used_templates) > 5):
@@ -232,8 +233,6 @@ def TransStructure(used_templates, addr, sol_name, prompt):
     reward_sub_structure = ""
     question_category = ""
 
-    print(used_templates)
-
     if (used_templates == []):
         # categorise into dream job,  monetary reward, threat, sympathy (if "generic" just choose any)
         if(any(word in capitalised_prompt for word in dream_job_indicators)):    
@@ -252,19 +251,18 @@ def TransStructure(used_templates, addr, sol_name, prompt):
                 reward_sub_structure = "/business_deal"
             else:
                 reward_sub_structure = "/win"  
-            res = append_dir_find_file(used_templates, sol_name, addr, "TRANS/first_response_solicitation/money_reward"+reward_sub_structure)
+            res = append_dir_find_file(used_templates, sol_name, addr, "TRANS/first_response_solicitation/reward_based"+reward_sub_structure)
         else:
             res = append_dir_find_file(used_templates, sol_name, addr, "TRANS/first_response_solicitation/generic")
     else:
-        # if there is a link in the email, respond that you don't want to / can't open it 
-        if (("HTTP://" or "HTTPS://") in prompt):
-            res = append_dir_find_file(used_templates, sol_name, addr, "TRANS/link_response")
         # rant if there are any ranting word indicators, or there is an excessive use of exclamation marks
         # or if over 35% of the email is capitalised
+        if (any(word in capitalised_prompt for word in personal_convince_travel)):
+            res = append_dir_find_file(used_templates, sol_name, addr, "TRANS/personal_convince_travel")
         elif (any(word in capitalised_prompt for word in move_off_email_indicators)):
-            res = append_dir_find_file(used_templates, sol_name, addr, "TRANS/move_off_email")
+            res = append_dir_find_file(used_templates, sol_name, addr, "move_off_email")
         elif ((any(word in capitalised_prompt for word in ranting_indicators) or (prompt.count("!") >=5)) or (pcnt_cap >=0.35)): 
-            res = append_dir_find_file(used_templates, sol_name, addr, "TRANS/rant_response")
+            res = append_dir_find_file(used_templates, sol_name, addr, "rant_response")
         else:
             # if none of the above templates, then follow substructure
             for template_used in used_templates:
@@ -272,11 +270,11 @@ def TransStructure(used_templates, addr, sol_name, prompt):
                     sub_structure = "/threat_based"
                 elif ("/reward_based" in template_used):
                     sub_structure = "/reward_based"
-                    if("/questions_inheritance" in template_used ):
+                    if("inheritance" in template_used ):
                         reward_sub_structure = "/questions_inheritance"
-                    elif("/questions_loan" in template_used):
+                    elif("loan" in template_used):
                         reward_sub_structure = "/questions_loan"
-                    elif("/questions_business_deal" in template_used):
+                    elif("business_deal" in template_used):
                         reward_sub_structure = "/questions_business_deal"
                     else:
                         reward_sub_structure = "/questions_win"
@@ -306,6 +304,82 @@ def TransStructure(used_templates, addr, sol_name, prompt):
 
 
 
+#structure for an email with lottery classification
+def LotteryStructure(used_templates, addr, sol_name, prompt):
+    capitalised_prompt = prompt.upper()
+   
+    pcnt_cap = find_capitalised_percent(prompt)
+
+    pretended_to_send = False
+    irritation_stage_reached = False
+
+    if (used_templates == []):  
+        res = append_dir_find_file(used_templates, sol_name, addr, "LOTTERY/first_response")
+    # rant if there are any ranting word indicators, or there is an excessive use of exclamation marks
+    # or if over 35% of the email is capitalised
+    else:
+        for template_used in used_templates:
+            if ("pretend_sent" in template_used):
+                pretended_to_send = True
+            if ("rant_response" in template_used):
+                irritation_stage_reached = True
+        if (any(word in capitalised_prompt for word in move_off_email_indicators)):
+            res = append_dir_find_file(used_templates, sol_name, addr, "move_off_email")
+        elif ((any(word in capitalised_prompt for word in ranting_indicators) or (prompt.count("!") >=5)) or (pcnt_cap >=0.35)): 
+            res = append_dir_find_file(used_templates, sol_name, addr, "rant_response")
+            irritation_stage_reached = True
+    
+        # "near win", every three emails, if their email mentions money, ask about the fee
+        # only every 3 so not stuck in loop, and suspicious to mention money if their prev email didnt
+        # otherwise, 2 qs about situ then 1 sceptical/ excited email depending on person
+        elif ((len(used_templates) % 4 == 0) and any(word in capitalised_prompt for word in send_money_indicators) and (irritation_stage_reached == True)):
+            if (pretended_to_send == True):
+                res = append_dir_find_file(used_templates, sol_name, addr, "LOTTERY/transaction_reply")
+            else:
+                res = append_dir_find_file(used_templates, sol_name, addr, "LOTTERY/pretend_sent")
+        elif ((len(used_templates) % 4 == 3)):
+            res = append_dir_find_file(used_templates, sol_name, addr, "LOTTERY/exci_scep_resp")
+        else:
+            res = append_dir_find_file(used_templates, sol_name, addr, "LOTTERY/questions")
+                     
+    return res
+
+
+
+def NonTransStructure(used_templates, addr, sol_name, prompt):
+    capitalised_prompt = prompt.upper() 
+    pcnt_cap = find_capitalised_percent(prompt)
+
+    substructure = ""
+
+    if (used_templates == []):  
+        if (any(word in capitalised_prompt for word in eliciting_fear_indicators)):
+            res = append_dir_find_file(used_templates, sol_name, addr, "NONTRANS/first_response/scared_first")
+        elif (any(word in capitalised_prompt for word in eliciting_sympathy_indicators)):
+            res = append_dir_find_file(used_templates, sol_name, addr, "NONTRANS/first_response/sympathy_first")
+        else:
+            res = append_dir_find_file(used_templates, sol_name, addr, "NONTRANS/first_response/generic_first")
+    else:
+        for template_used in used_templates:
+            if ("scared" in template_used):
+                substructure = "scared_response"
+            elif ("sympathy" in template_used):
+                substructure = "sympathy_response"
+
+        if ((any(word in capitalised_prompt for word in ranting_indicators) or (prompt.count("!") >=5)) or (pcnt_cap >=0.35)): 
+            res = append_dir_find_file(used_templates, sol_name, addr, "rant_response")
+        elif (any(word in capitalised_prompt for word in move_off_email_indicators)):
+            res = append_dir_find_file(used_templates, sol_name, addr, "move_off_email")
+        elif (any(word in capitalised_prompt for word in urgency_indicators)):
+            res = append_dir_find_file(used_templates, sol_name, addr, "NONTRANS/urgent_response")
+        elif (substructure != ""):
+            res = append_dir_find_file(used_templates, sol_name, addr, "NONTRANS/"+substructure)
+        else:
+            res = append_dir_find_file(used_templates, sol_name, addr, "NONTRANS/generic_response")
+
+    return res
+
+
 class OldWomanReplier(Replier):
     name = "OldWoman"
 
@@ -320,15 +394,12 @@ class OldWomanReplier(Replier):
         addr = stored_info.addr
 
         if (scam_type == "LOTTERY"):
-            #res = LotteryStructure(used_templates)
-            res = "wee"
+            res = LotteryStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
         elif (scam_type == "LOVE"):
             print(self.name)
             res = LoveStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-        elif (scam_type == "NONTRANS"):
-            print("nontrans")
-        elif (scam_type == "OTHERS"):
-            print("others")
+        elif (scam_type == "NONTRANS") or (scam_type == "OTHERS"):
+            res = NonTransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
         elif (scam_type == "TRANS"):
             res = TransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
      
@@ -339,19 +410,6 @@ class OldWomanReplier(Replier):
             res = "Hi, \n" + res 
         return  res + "[bait_end]"
 
-
-        """
-        scam_type = "LOTTERY"
-        personality_template_dir = PERSONALITY_TEMPLATES_DIR + "/OldWoman"
-        
-        template_dir = os.path.join(personality_template_dir, scam_type)#, random.choice(os.listdir(personality_template_dir)))
-        template_dir = template_dir + "/first_response"
-        print("this is the template directory" + str(template_dir))
-        target_filename = random.choice(os.listdir(template_dir))
-        with open(os.path.join(template_dir, target_filename), "r", encoding="utf8") as f:
-            res = f.read()
-  
-        """
     
 class BusinessPersonReplier(Replier):
     name = "BusinessPerson"

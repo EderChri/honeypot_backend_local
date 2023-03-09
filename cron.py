@@ -62,8 +62,9 @@ def main(crawl = True):
                 print("This email is just crawled, using random replier")
                 replier = responder.get_replier_randomly()
             
-                #classification = classify(text)
-                classification = "TRANS"
+                classification = classify(text)
+            
+                #classification = "TRANS"
 
 
 
