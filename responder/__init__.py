@@ -5,8 +5,8 @@ from secret import MODEL_HISTORY_PATH
 from .replier import OldWomanReplier, Replier, ClassifierReplier, TemplateReplier, BusinessPersonReplier, NaiveYouthReplier, ProfitFocusedManReplier 
 
 #replier_list = [ClassifierReplier(), NeoEnronReplier(), NeoRawReplier()]
-#replier_list = [ClassifierReplier(), OldWomanReplier(), BusinessPersonReplier(), NaiveYouthReplier(), ProfitFocusedManReplier()]
-replier_list = [OldWomanReplier()]
+replier_list = [ClassifierReplier(), OldWomanReplier(), BusinessPersonReplier(), NaiveYouthReplier(), ProfitFocusedManReplier()]
+#replier_list = [OldWomanReplier()]
 
 ReplyResult = namedtuple("ReplyResult", ["name", "text"])
 

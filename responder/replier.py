@@ -29,7 +29,7 @@ ranting_indicators = [" STUPID", " IDIOT", " MORON", " FUCKER", " CUNT", " SHITH
 
 send_money_indicators = ["SEND MONEY", "GBP ", "USD ", " EUR ", "£", "$", "€", "WESTERN UNION ", "TRANSFER ", "BANK",
                          "WORLD REMIT", "MONEY GRAM ", "MONEY-GRAM", "PAYPAL ", "BITCOIN ", " BTC ", "STEAM CARD ", "STEAM GIFT CARD ",
-                         " WIRE", " FEE.", "FEE,", " FEE ", " DOLLAR", " EURO ", " POUND ",
+                         " WIRE", " FEE.", "FEE,", " FEE ", " DOLLAR", " EURO", " POUND",
                          "RELEASE FUNDS", "RELEASE THE FUNDS"]
 
 move_off_email_indicators = ["SEND NUMBER", "SEND PHONE NUMBER", "YOUR PHONE NUMBER", " SKYPE", "VIDEO CALL",
@@ -227,7 +227,6 @@ def LoveStructure(used_templates, addr, sol_name, prompt):
 #structure for an email of transactional nature
 def TransStructure(used_templates, addr, sol_name, prompt):
     capitalised_prompt = prompt.upper()
-   
     pcnt_cap = find_capitalised_percent(prompt)
     sub_structure = ""
     reward_sub_structure = ""
@@ -370,6 +369,8 @@ def NonTransStructure(used_templates, addr, sol_name, prompt):
             res = append_dir_find_file(used_templates, sol_name, addr, "rant_response")
         elif (any(word in capitalised_prompt for word in move_off_email_indicators)):
             res = append_dir_find_file(used_templates, sol_name, addr, "move_off_email")
+        elif ((any(word in capitalised_prompt for word in send_money_indicators)) and (len(used_templates)%3==0)):
+            res = append_dir_find_file(used_templates, sol_name, addr, "NONTRANS/send_money")
         elif (any(word in capitalised_prompt for word in urgency_indicators)):
             res = append_dir_find_file(used_templates, sol_name, addr, "NONTRANS/urgent_response")
         elif (substructure != ""):
@@ -380,128 +381,61 @@ def NonTransStructure(used_templates, addr, sol_name, prompt):
     return res
 
 
+def templatePicker(repliername, prompt, addr, bait_email, greeting):
+    index_to_cut_before = (prompt.upper()).rfind("[SCAM_START]")
+    prompt_only_contain_last_email =  prompt[index_to_cut_before:]
+    stored_info = get_stored_info(bait_email, addr)
+    scam_type = stored_info.classification
+    used_templates = stored_info.used_templates
+    addr = stored_info.addr
+
+    if (scam_type == "LOTTERY"):
+        res = LotteryStructure(used_templates, addr, repliername, prompt_only_contain_last_email)
+    elif (scam_type == "LOVE"):
+        print(repliername)
+        res = LoveStructure(used_templates, addr, repliername, prompt_only_contain_last_email)
+    elif (scam_type == "NONTRANS") or (scam_type == "OTHERS"):
+        res = NonTransStructure(used_templates, addr, repliername, prompt_only_contain_last_email)
+    elif (scam_type == "TRANS"):
+        res = TransStructure(used_templates, addr, repliername, prompt_only_contain_last_email)
+    
+    scammer_name = find_name_of_sender(prompt[index_to_cut_before:])        
+    if (scammer_name!=0):
+        res = greeting + scammer_name +", \n" + res 
+    else:
+        res = "Hi, \n" + res 
+    return  res + "[bait_end]"
+
+
 class OldWomanReplier(Replier):
     name = "OldWoman"
 
     def _gen_text(self, prompt, addr, bait_email) -> str:
-        index_to_cut_before = (prompt.upper()).rfind("[SCAM_START]")
+        greeting = "Dear "
+        return  templatePicker(self.name, prompt, addr, bait_email, greeting)
 
-        prompt_only_contain_last_email =  prompt[index_to_cut_before:]
 
-        stored_info = get_stored_info(bait_email, addr)
-        scam_type = stored_info.classification
-        used_templates = stored_info.used_templates
-        addr = stored_info.addr
-
-        if (scam_type == "LOTTERY"):
-            res = LotteryStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-        elif (scam_type == "LOVE"):
-            print(self.name)
-            res = LoveStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-        elif (scam_type == "NONTRANS") or (scam_type == "OTHERS"):
-            res = NonTransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-        elif (scam_type == "TRANS"):
-            res = TransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-     
-        scammer_name = find_name_of_sender(prompt[index_to_cut_before:])        
-        if (scammer_name!=0):
-            res = "Dear " + scammer_name +", \n" + res 
-        else:
-            res = "Hi, \n" + res 
-        return  res + "[bait_end]"
-
-    
 class BusinessPersonReplier(Replier):
     name = "BusinessPerson"
 
     def _gen_text(self, prompt, addr, bait_email) -> str:
-        index_to_cut_before = (prompt.upper()).rfind("[SCAM_START]")
-
-        prompt_only_contain_last_email =  prompt[index_to_cut_before:]
-
-        stored_info = get_stored_info(bait_email, addr)
-        scam_type = stored_info.classification
-        used_templates = stored_info.used_templates
-        addr = stored_info.addr
-
-        if (scam_type == "LOTTERY"):
-            res = LotteryStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-        elif (scam_type == "LOVE"):
-            print(self.name)
-            res = LoveStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-        elif (scam_type == "NONTRANS") or (scam_type == "OTHERS"):
-            res = NonTransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-        elif (scam_type == "TRANS"):
-            res = TransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-     
-        scammer_name = find_name_of_sender(prompt[index_to_cut_before:])        
-        if (scammer_name!=0):
-            res = "Dear " + scammer_name +", \n" + res 
-        else:
-            res = "Hi, \n" + res 
-        return  res + "[bait_end]"
-
+        greeting = "Dear "
+        return  templatePicker(self.name, prompt, addr, bait_email, greeting)
     
 
 class ProfitFocusedManReplier(Replier):
     name = "ProfitFocusedMan"
     def _gen_text(self, prompt, addr, bait_email) -> str:
-        index_to_cut_before = (prompt.upper()).rfind("[SCAM_START]")
-
-        prompt_only_contain_last_email =  prompt[index_to_cut_before:]
-
-        stored_info = get_stored_info(bait_email, addr)
-        scam_type = stored_info.classification
-        used_templates = stored_info.used_templates
-        addr = stored_info.addr
-
-        if (scam_type == "LOTTERY"):
-            res = LotteryStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-        elif (scam_type == "LOVE"):
-            print(self.name)
-            res = LoveStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-        elif (scam_type == "NONTRANS") or (scam_type == "OTHERS"):
-            res = NonTransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-        elif (scam_type == "TRANS"):
-            res = TransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-     
-        scammer_name = find_name_of_sender(prompt[index_to_cut_before:])        
-        if (scammer_name!=0):
-            res = "Dear " + scammer_name +", \n" + res 
-        else:
-            res = "Hi, \n" + res 
-        return  res + "[bait_end]"
+        greeting = "Hi "
+        return  templatePicker(self.name, prompt, addr, bait_email, greeting)
 
 
 class NaiveYouthReplier(Replier):
     name = "NaiveYouth"
 
     def _gen_text(self, prompt, addr, bait_email) -> str:
-        index_to_cut_before = (prompt.upper()).rfind("[SCAM_START]")
-
-        prompt_only_contain_last_email =  prompt[index_to_cut_before:]
-
-        stored_info = get_stored_info(bait_email, addr)
-        scam_type = stored_info.classification
-        used_templates = stored_info.used_templates
-        addr = stored_info.addr
-
-        if (scam_type == "LOTTERY"):
-            res = LotteryStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-        elif (scam_type == "LOVE"):
-            print(self.name)
-            res = LoveStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-        elif (scam_type == "NONTRANS") or (scam_type == "OTHERS"):
-            res = NonTransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-        elif (scam_type == "TRANS"):
-            res = TransStructure(used_templates, addr, self.name, prompt_only_contain_last_email)
-     
-        scammer_name = find_name_of_sender(prompt[index_to_cut_before:])        
-        if (scammer_name!=0):
-            res = "Heya " + scammer_name +", \n" + res 
-        else:
-            res = "Hi, \n" + res 
-        return  res + "[bait_end]"
+        greeting = "Hiya "
+        return  templatePicker(self.name, prompt, addr, bait_email, greeting)
 
 
 """
@@ -528,7 +462,6 @@ class ClassifierReplier(Replier):
         scam_type = classify(prompt)
         template_dir = os.path.join(TEMPLATES_DIR, scam_type)
         target_filename = random.choice(os.listdir(template_dir))
-
         with open(os.path.join(template_dir, target_filename), "r", encoding="utf8") as f:
             res = f.read()
 

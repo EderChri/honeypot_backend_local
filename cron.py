@@ -22,7 +22,8 @@ def add_signature(stored_info, res_text):
     if (stored_info.sol =="ProfitFocusedMan"):
         res_text += f"\n Regards,\n{stored_info.username}"
     if (stored_info.sol =="NaiveYouth"):
-        res_text += f"\n thanks!\n{stored_info.username} :)"
+        res_text += f"\n thanks!\n{stored_info.username} :)\n\n"
+        res_text += "Sent from my iPhone"
     return res_text
 
 
@@ -63,10 +64,6 @@ def main(crawl = True):
                 replier = responder.get_replier_randomly()
             
                 classification = classify(text)
-            
-                #classification = "TRANS"
-
-
 
                 bait_email = solution_manager.gen_new_addr(scam_email, replier.name, classification)
                 stored_info = solution_manager.get_stored_info(bait_email, scam_email)
