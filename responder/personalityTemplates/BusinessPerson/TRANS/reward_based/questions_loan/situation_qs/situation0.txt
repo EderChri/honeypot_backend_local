@@ -1,1 +1,1 @@
-loan sit 0
+What is the interest rate on the loan? x Just to make sure x.
