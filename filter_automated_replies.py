@@ -65,10 +65,11 @@ def only_dupes_checker(filename):
     prob_not_bot_dst = "/mnt/c/Users/Jemim/Documents/DISSERTATION/scambaiter_backend/bot_archives/probable_not_bot_archives/" + filename
 
     #almost definitely a bot if true
-    if abs(len(list_of_ind_emails) - len(set_ind_emails)) <3:
+    if abs(len(list_of_ind_emails) - len(set_ind_emails)) >3:
         print("THIS IS 100% a bot uh oh")
         shutil.move(src, defo_bot_dst)
     else:
+        print("dupes but not a bot")
         shutil.copyfile(src, prob_not_bot_dst)
     
 
