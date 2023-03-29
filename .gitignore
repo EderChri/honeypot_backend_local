@@ -3,6 +3,7 @@ secret.py
 emails/
 cache/
 models/
+bot_archives/
 secretforlocalsetup.py
 
 # Byte-compiled / optimized / DLL files

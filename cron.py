@@ -9,8 +9,13 @@ import mailgun
 import responder
 import solution_manager
 from responder.classifier import classify
-from secret import MAIL_SAVE_DIR, MAIL_HANDLED_DIR
+from secret import MAIL_SAVE_DIR, MAIL_HANDLED_DIR, CLASSIFIER_PATH
 from archiver import archive
+
+from flair.models import TextClassifier
+
+
+classifier = TextClassifier.load(CLASSIFIER_PATH)
 
 def add_signature(stored_info, res_text):
     if (stored_info.sol =="OldWoman"):
@@ -27,7 +32,6 @@ def add_signature(stored_info, res_text):
     return res_text
 
 
-
 def main(crawl = True):
     if crawl:
         crawler.fetch_all()
@@ -36,80 +40,95 @@ def main(crawl = True):
 
     email_filenames = os.listdir(MAIL_SAVE_DIR)
 
+    #mailgun limits me to sending 100 emails every hour. This is to make sure that isnt exceeded
+    email_sent_counter = 0 
+
+    # had previous issues with bounce rate. If bounce rate is too high, stop crawling
+    bounce_list = mailgun.get_bounces()
+    with open("./bounce_list.json", "r", encoding="utf8") as f:
+        json.dump(bounce_list, f, indent=4)
+
+
+
     for email_filename in email_filenames:
-        try:
-            print(f"Handling {email_filename}")
-            email_path = os.path.join(MAIL_SAVE_DIR, email_filename)
-            with open(email_path, "r", encoding="utf8") as f:
-                email_obj = json.load(f)
-
-            text = email_obj["content"]
-            subject = str(email_obj["title"])
-            if not subject.startswith("Re:"):
-                subject = "Re: " + subject
-            scam_email = email_obj["from"]
-
-            if "bait_email" not in email_obj:
-                # Email just crawled
-
-                if solution_manager.scam_exists(scam_email):
-                    print("This crawled email has been replied, ignoring")
-                    os.remove(email_path)
-                    continue
-                    # pass
-
-                archive(True, scam_email, "CRAWLER", email_obj["title"], text)
-
-                print("This email is just crawled, using random replier")
-                replier = responder.get_replier_randomly()
-            
-                classification = classify(text)
-
-                bait_email = solution_manager.gen_new_addr(scam_email, replier.name, classification)
-                stored_info = solution_manager.get_stored_info(bait_email, scam_email)
-            else:
-                bait_email = email_obj["bait_email"]
-                stored_info = solution_manager.get_stored_info(bait_email, scam_email)
-
-                if stored_info is None:
-                    print(f"Cannot found replier for {bait_email}")
-                    os.remove(email_path)
-                    continue
-
-                print(f"Found selected replier {stored_info.sol}")
-                replier = responder.get_replier_by_name(stored_info.sol)
-                if replier is None:
-                    print("Replier Sol_name not found")
-                    os.remove(email_path)
-                    continue
-
+        if (email_sent_counter < 30):
             try:
-                res_text = replier.get_reply_by_his(scam_email, bait_email)
+                print(f"Handling {email_filename}")
+                email_path = os.path.join(MAIL_SAVE_DIR, email_filename)
+                with open(email_path, "r", encoding="utf8") as f:
+                    email_obj = json.load(f)
+
+                text = email_obj["content"]
+                subject = str(email_obj["title"])
+                if not subject.startswith("Re:"):
+                    subject = "Re: " + subject
+                scam_email = email_obj["from"]
+
+                if "bait_email" not in email_obj:
+                    # Email just crawled
+
+                    if solution_manager.scam_exists(scam_email):
+                        print("This crawled email has been replied, ignoring")
+                        os.remove(email_path)
+                        continue
+                        # pass
+
+                    archive(True, scam_email, "CRAWLER", email_obj["title"], text)
+
+                    print("This email is just crawled, using random replier")
+                    replier = responder.get_replier_randomly()
+                
+                    classification = classify(text, classifier)
+
+                    bait_email = solution_manager.gen_new_addr(scam_email, replier.name, classification)
+                    stored_info = solution_manager.get_stored_info(bait_email, scam_email)
+                else:
+                    bait_email = email_obj["bait_email"]
+                    stored_info = solution_manager.get_stored_info(bait_email, scam_email)
+
+                    if stored_info is None:
+                        print(f"Cannot found replier for {bait_email}")
+                        os.remove(email_path)
+                        continue
+
+                    print(f"Found selected replier {stored_info.sol}")
+                    replier = responder.get_replier_by_name(stored_info.sol)
+                    if replier is None:
+                        print("Replier Sol_name not found")
+                        os.remove(email_path)
+                        continue
+
+                try:
+                    print("THIS IS REPLIER "+ str(replier))
+                    res_text = replier.get_reply_by_his(scam_email, bait_email)
+                except Exception as e:
+                    print("GENERATING ERROR")
+                    print(e)
+                    print(traceback.format_exc())
+                    print("Due to CUDA Error, stopping whole sequence")
+                    return
+
+                    # Add Signature
+
+                # Add in custom signatures for each personality
+                res_text = add_signature(stored_info, res_text)
+
+                send_result = mailgun.send_email(stored_info.username, stored_info.addr, scam_email, subject, res_text)
+                if send_result:
+                    print(f"Successfully sent response to {scam_email}")
+                    email_sent_counter +=1
+
+                    # Move to handled
+                    if not os.path.exists(MAIL_HANDLED_DIR):
+                        os.makedirs(MAIL_HANDLED_DIR)
+                    shutil.move(email_path, os.path.join(MAIL_HANDLED_DIR, email_filename))
+
+                    archive(False, scam_email, bait_email, subject, res_text)
             except Exception as e:
-                print("GENERATING ERROR")
                 print(e)
                 print(traceback.format_exc())
-                print("Due to CUDA Error, stopping whole sequence")
-                return
-
-                # Add Signature
-
-            # Add in custom signatures for each personality
-            res_text = add_signature(stored_info, res_text)
-
-            send_result = mailgun.send_email(stored_info.username, stored_info.addr, scam_email, subject, res_text)
-            if send_result:
-                print(f"Successfully sent response to {scam_email}")
-
-                # Move to queued
-                if not os.path.exists(MAIL_HANDLED_DIR):
-                    os.makedirs(MAIL_HANDLED_DIR)
-                shutil.move(email_path, os.path.join(MAIL_HANDLED_DIR, email_filename))
-
-                archive(False, scam_email, bait_email, subject, res_text)
-        except Exception as e:
-            print(e)
-            print(traceback.format_exc())
+        else:
+            break
 
 
 if __name__ == '__main__':

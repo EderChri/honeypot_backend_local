@@ -102,10 +102,9 @@ class Replier(ABC):
         return res
 
     def get_reply_by_his(self, addr, bait_email):
-        print("THIS IS NAME HERE" + str(addr))
         with open(os.path.join(MAIL_ARCHIVE_DIR, addr + ".his"), "r", encoding="utf8") as f:
             content = f.read()
-        return self.get_reply(content + "\n[bait_start]\n",addr, bait_email)
+        return self.get_reply(content + "\n[bait_start]\n", addr, bait_email)
 
 
 def find_sign_off(prompt):
@@ -146,9 +145,10 @@ def find_name_of_sender(prompt):
                 name = first_elem
         if (name == 0):
             print("no valid name found")
-    
-        name = name.capitalize()
-    return name
+    try:
+        return name.capitalize()
+    except AttributeError:
+        return 0
 
 
 def append_dir_find_file(used_templates, sol_name, addr, specific_struct_dir):
@@ -192,10 +192,11 @@ def LoveStructure(used_templates, addr, sol_name, prompt):
                 grooming_stage_bool = True
     if (used_templates == []):
         res = append_dir_find_file(used_templates, sol_name, addr, "LOVE/first_response")
-    # rant if there are any ranting word indicators, or there is an excessive use of exclamation marks
-    # or if over 35% of the email is capitalised
+    
     elif (any(word in capitalised_prompt for word in move_off_email_indicators)):
         res = append_dir_find_file(used_templates, sol_name, addr, "move_off_email")
+    # rant if there are any ranting word indicators, or there is an excessive use of exclamation marks
+    # or if over 35% of the email is capitalised 
     elif ((any(word in capitalised_prompt for word in ranting_indicators) or (prompt.count("!") >=5)) or (pcnt_cap >=0.35)): 
         res = append_dir_find_file(used_templates, sol_name, addr, "rant_response")
     elif (any(word in capitalised_prompt for word in send_money_indicators)):
@@ -410,7 +411,7 @@ def templatePicker(repliername, prompt, addr, bait_email, greeting):
 class OldWomanReplier(Replier):
     name = "OldWoman"
 
-    def _gen_text(self, prompt, addr, bait_email) -> str:
+    def _gen_text(self, prompt, addr, bait_email) -> str:    
         greeting = "Dear "
         return  templatePicker(self.name, prompt, addr, bait_email, greeting)
 
@@ -458,8 +459,9 @@ class NeoRawReplier(Replier):
 class ClassifierReplier(Replier):
     name = "Classifier"
 
-    def _gen_text(self, prompt):
-        scam_type = classify(prompt)
+    def _gen_text(self, prompt, addr, bait_email):
+        stored_info = get_stored_info(bait_email, addr)
+        scam_type = stored_info.classification
         template_dir = os.path.join(TEMPLATES_DIR, scam_type)
         target_filename = random.choice(os.listdir(template_dir))
         with open(os.path.join(template_dir, target_filename), "r", encoding="utf8") as f:
@@ -471,7 +473,7 @@ class ClassifierReplier(Replier):
 class TemplateReplier(Replier):
     name = "Template"
 
-    def _gen_text(self, prompt) -> str:
+    def _gen_text(self, prompt, addr, bait_email) -> str:
         template_dir = os.path.join(TEMPLATES_DIR, random.choice(os.listdir(TEMPLATES_DIR)))
         target_filename = random.choice(os.listdir(template_dir))
 

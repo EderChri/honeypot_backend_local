@@ -46,7 +46,7 @@ class RemoveOpeningEndingTextFilter(ReplaceNewlineTextFilter):
     MINIMUM_WORDS = 7
 
     def filter(self, raw: str):
-        raw = super(RemoveOpeningEndingTextFilter, self).filter(raw)
+        raw = super(RemoveingEndingTextFilter, self).filter(raw)
         lines = raw.split("<br>")
         start = 0
 

@@ -4,8 +4,7 @@ from flair.models import TextClassifier
 from secret import CLASSIFIER_PATH
 
 
-def classify(content) -> str:
-    classifier = TextClassifier.load(CLASSIFIER_PATH)
+def classify(content, classifier) -> str:
     sentence = Sentence(content)
     classifier.predict(sentence)
 
