@@ -7,8 +7,6 @@ with open("mailgun/template.html", "r") as f:
 
 
 def send_email(username, address, target, subject, text):
-    print("not in use")
-""" 
     if type(target) == str:
         target = [target]
 
@@ -25,7 +23,6 @@ def send_email(username, address, target, subject, text):
         print(f"Failed to send, {res.text}")
         return False
     return True
- """
 
 if __name__ == '__main__':
     print(send_email("Tester", "00o00@mail.sdchaos.top", "iamsdchao@gmail.com", "==Test==",

@@ -5,11 +5,12 @@ from archiver import archive
 
 
 def on_receive(data):
-    filename = str(data["timestamp"]) + ".json"
+    data_cleaned = {key.strip("'"): value for key, value in data.items()}
+    filename = str(data_cleaned.get("timestamp", "")) + ".json"
 
-    res = {"from": str(data["sender"]).lower()}
+    res = {"from": str(data_cleaned["sender"]).lower()}
 
-    raw_rec = str(data["recipient"])
+    raw_rec = str(data_cleaned["recipient"])
     if "," in raw_rec:
         for rec in raw_rec.split(","):
             if rec.endswith(DOMAIN_NAME):
@@ -18,10 +19,10 @@ def on_receive(data):
     else:
         res["bait_email"] = raw_rec
 
-    res["title"] = data["Subject"]
-    res["content"] = data["stripped-text"]
-    if "stripped-signature" in data:
-        res["content"] += "\n" + data["stripped-signature"]
+    res["title"] = data_cleaned["Subject"]
+    res["content"] = data_cleaned["stripped-text"]
+    if "stripped-signature" in data_cleaned:
+        res["content"] += "\n" + data_cleaned["stripped-signature"]
 
     if not os.path.exists(MAIL_SAVE_DIR):
         os.makedirs(MAIL_SAVE_DIR)

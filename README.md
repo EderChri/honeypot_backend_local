@@ -67,3 +67,9 @@ To enable your responder, you need to add the instance of your replier class int
 from .replier import NeoEnronReplier, NeoRawReplier, Replier, ClassifierReplier, MyReplier
 replier_list = [ClassifierReplier(), NeoEnronReplier(), NeoRawReplier(), MyReplier()]
 ```
+
+Test command:
+
+```bash
+curl -X POST -F 'timestamp=1618109761' -F 'sender=sender@example.com' -F 'recipient=recipient@example.com' -F 'Subject=Test Subject' -F 'stripped-text=Test content' -F 'stripped-signature=Test signature' http://localhost:5000/income
+```
