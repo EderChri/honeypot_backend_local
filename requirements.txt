@@ -21,3 +21,4 @@ langdetect~=1.0.9
 names~=0.3.0
 scipy==1.10.1
 flair~=0.11.3
+pytest~=8.1.1

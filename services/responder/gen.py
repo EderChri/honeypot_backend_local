@@ -16,7 +16,8 @@ gen_settings = GENSettings(
 
 def gen_text(prompt: str, model_path=None):
     gen = HappyGeneration() if model_path is None else HappyGeneration(model_path)
-    prompt = "You are a model that assumes the role of the first responder. Here is the conversation so far:" + "\n" + prompt
+    prompt = "You are a model that assumes the role of the first responder. Here is the conversation so far:" + "\n" \
+             + prompt
     # Word limit
     if len(prompt.split()) > 1000:
         word_list = prompt.replace("\n", "<br> ").split(" ")
