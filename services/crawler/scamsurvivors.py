@@ -9,7 +9,7 @@ from langdetect import detect, LangDetectException
 from collections import namedtuple
 import re
 
-from secret import MAIL_SAVE_DIR, CRAWLER_PROG_DIR, MAX_PAGE
+from constants import MAIL_SAVE_DIR, CRAWLER_PROG_DIR, MAX_PAGE
 
 URL = "https://www.scamsurvivors.com/forum/viewforum.php?f=6"
 BASE_URL = "https://www.scamsurvivors.com/forum/"

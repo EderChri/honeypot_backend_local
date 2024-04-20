@@ -7,7 +7,7 @@ from requests import session
 from langdetect import detect, LangDetectException
 import re
 
-from secret import MAIL_SAVE_DIR, CRAWLER_PROG_DIR, MAX_PAGE
+from constants import MAIL_SAVE_DIR, CRAWLER_PROG_DIR, MAX_PAGE
 
 URL = "http://scamletters.info/category/scam/page/__page__"
 

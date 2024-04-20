@@ -1,4 +1,4 @@
-from solution_manager import gen_new_addr, addr_exists, get_sol_name
+from services.solution_manager import addr_exists
 
 # gen_new_addr("am21149@bristol.ac.uk", "sol1")
 # gen_new_addr("wentaochens@outlook.com", "sol2")

@@ -2,10 +2,10 @@ import json
 import os
 from collections import namedtuple, defaultdict
 
-from secret import MODEL_HISTORY_PATH
-from .replier import NeoEnronReplier, NeoRawReplier, Replier, ClassifierReplier, TemplateReplier, MyReplier
+from constants import MODEL_HISTORY_PATH
+from .replier import Replier, FacebookReplier, WhatsAppReplier, MailReplier, InstagramReplier
 
-replier_list = [ClassifierReplier(), NeoEnronReplier(), NeoRawReplier(), MyReplier()]
+replier_list = [FacebookReplier(), WhatsAppReplier(), MailReplier(), InstagramReplier()]
 
 ReplyResult = namedtuple("ReplyResult", ["name", "text"])
 

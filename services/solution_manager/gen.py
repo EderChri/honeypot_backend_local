@@ -2,7 +2,7 @@ import random
 import string
 
 from .storer import addr_exists
-from secret import DOMAIN_NAME
+from constants import DOMAIN_NAME
 
 
 def get_random_addr():

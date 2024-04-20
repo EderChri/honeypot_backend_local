@@ -1,4 +1,4 @@
-from secret import MAIL_ARCHIVE_DIR
+from constants import MAIL_ARCHIVE_DIR
 import os
 import time
 

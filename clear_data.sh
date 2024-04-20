@@ -1,3 +1,4 @@
-rm -rf ./cache
-rm -rf ./emails
-rm ./models/history.json
+rm -rf cache
+rm -rf data/*
+rm -rf tests/models
+rm models/history.json

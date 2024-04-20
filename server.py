@@ -1,6 +1,6 @@
 from flask import Flask, request
 
-import mailgun
+from services import mailgun
 
 app = Flask(__name__)
 

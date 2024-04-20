@@ -1,6 +1,6 @@
 from typing import Optional
 
-from secret import ADDR_SOL_PATH
+from constants import ADDR_SOL_PATH
 import json
 import os
 import names

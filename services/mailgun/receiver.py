@@ -1,7 +1,7 @@
-from secret import MAIL_SAVE_DIR, DOMAIN_NAME
+from constants import MAIL_SAVE_DIR, DOMAIN_NAME
 import json
 import os
-from archiver import archive
+from services.archiver import archive
 
 
 def on_receive(data):
