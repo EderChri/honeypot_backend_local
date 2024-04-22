@@ -4,7 +4,7 @@ from unittest import mock
 from unittest.mock import MagicMock, patch
 import pytest
 import importlib
-from services.responder.replier import Replier
+
 
 @pytest.fixture
 def mocked_email_obj():
@@ -26,7 +26,7 @@ def mocked_email_path(tmp_path, mocked_email_obj):
 @pytest.fixture
 def mocked_processor(tmp_path, mocked_email_path):
     with mock.patch("constants.MAIL_TEMPLATE", "../services/mailgun/template.html"), \
-        mock.patch("constants.MAIL_SAVE_DIR", tmp_path):
+            mock.patch("constants.MAIL_SAVE_DIR", tmp_path):
         # Hacky approach, but only viable method I found to force reload of the package to patch constants again
         import services.email.emailprocessor
         importlib.reload(services.email.emailprocessor)
@@ -44,7 +44,7 @@ def test_add_re_to_subject(mocked_processor):
 def test_email_processor_init(mocked_processor, mocked_email_path, mocked_email_obj):
     directory, _ = os.path.split(mocked_email_path)
     with mock.patch("constants.MAIL_TEMPLATE", "../services/mailgun/template.html"), \
-        mock.patch("constants.MAIL_SAVE_DIR", directory):
+            mock.patch("constants.MAIL_SAVE_DIR", directory):
         # Hacky approach, but only viable method I found to force reload of the package to patch constants again
         import services.email.emailprocessor
         importlib.reload(services.email.emailprocessor)
