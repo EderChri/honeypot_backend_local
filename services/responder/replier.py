@@ -1,7 +1,7 @@
 import os.path
 from abc import ABC
 
-from text_utils.text_filter import *
+from utils.text_utils.text_filter import *
 from .gen import gen_text
 from constants import MAIL_ARCHIVE_DIR, MAIL_PROMPT, WA_PROMPT, IG_PROMPT, \
     FB_PROMPT

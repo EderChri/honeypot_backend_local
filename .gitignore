@@ -1,6 +1,7 @@
 # Secret
-constants.py
+secret.py
 data/emails/
+data/app.log
 cache/
 models/
 

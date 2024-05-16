@@ -1,4 +1,5 @@
-from constants import MAIL_SAVE_DIR, DOMAIN_NAME
+from constants import MAIL_SAVE_DIR
+from secret import DOMAIN_NAME
 import json
 import os
 from services.archiver import archive

@@ -1,6 +1,7 @@
 import os
 import requests
-from constants import API_KEY, API_BASE_URL, MAIL_TEMPLATE, RECEIVER_EMAIL
+from constants import MAIL_TEMPLATE, RECEIVER_EMAIL
+from secret import API_KEY, API_BASE_URL
 
 with open(MAIL_TEMPLATE, "r") as f:
     template = f.read()
