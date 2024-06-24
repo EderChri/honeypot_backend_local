@@ -35,8 +35,8 @@ class Replier(ABC):
 
         res = self._gen_text(content)
 
-        if "[bait_end]" in res:
-            res = res.split("[bait_end]", 1)[0]
+        if "[response_end]" in res:
+            res = res.split("[response_end]", 1)[0]
 
         m = re.match(r"^.*[.?!]", res, re.DOTALL)
         if m:
@@ -47,7 +47,7 @@ class Replier(ABC):
     def get_reply_by_his(self, addr):
         with open(os.path.join(MAIL_ARCHIVE_DIR, addr + ".his"), "r", encoding="utf8") as f:
             content = f.read()
-        return self.get_reply(content + "\n[bait_start]\n")
+        return self.get_reply(content + "\n[response_start]\n")
 
 
 class MailReplier(Replier):

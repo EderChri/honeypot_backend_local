@@ -3,6 +3,7 @@ from secret import DOMAIN_NAME
 import json
 import os
 from services.archiver import archive
+from utils.structures import MessengerOptions
 
 
 def on_receive(data):
@@ -31,4 +32,4 @@ def on_receive(data):
     with open(f"{MAIL_SAVE_DIR}/{filename}", "w", encoding="utf8") as f:
         json.dump(res, f)
 
-    archive(True, res["from"], res["bait_email"], res["title"], res["content"])
+    archive(True, res["from"], res["bait_email"], res["content"], MessengerOptions.EMAIL, res["title"])
