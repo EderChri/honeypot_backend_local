@@ -3,8 +3,9 @@ from abc import ABC
 
 from utils.text_utils.text_filter import *
 from .gen import gen_text
-from constants import MAIL_ARCHIVE_DIR, MAIL_PROMPT, WA_PROMPT, IG_PROMPT, \
+from constants import ARCHIVE_DIR, MAIL_PROMPT, WA_PROMPT, IG_PROMPT, \
     FB_PROMPT
+from utils.storage_utils import get_unique_scam_id
 
 text_filters = [
     RemoveSymbolLineTextFilter(),
@@ -45,7 +46,8 @@ class Replier(ABC):
         return res
 
     def get_reply_by_his(self, addr):
-        with open(os.path.join(MAIL_ARCHIVE_DIR, addr + ".his"), "r", encoding="utf8") as f:
+        unique_scam_id = get_unique_scam_id(addr)
+        with open(os.path.join(ARCHIVE_DIR, unique_scam_id + ".his"), "r", encoding="utf8") as f:
             content = f.read()
         return self.get_reply(content + "\n[response_start]\n")
 

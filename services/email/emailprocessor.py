@@ -5,7 +5,7 @@ import traceback
 
 from constants import MAIL_SAVE_DIR, MAIL_HANDLED_DIR
 from services import solution_manager, responder, mailgun
-from services.archiver import archive
+from services.archiver import Archiver
 from utils.structures import MessengerOptions
 
 
@@ -28,10 +28,10 @@ class EmailProcessor:
             os.remove(self.email_path)
             return
 
-        archive(True, scam_email, "CRAWLER", text, MessengerOptions.EMAIL, self.email_obj["title"])
+        Archiver.archive(True, scam_email, "CRAWLER", text, MessengerOptions.EMAIL, self.email_obj["title"])
 
         print("This email is just crawled, using random replier")
-        replier = responder.get_replier_randomly()
+        replier = responder.get_replier_by_name("MailReplier")
         bait_email = solution_manager.gen_new_addr(scam_email, replier.name)
         stored_info = solution_manager.get_stored_info(bait_email, scam_email)
 
@@ -83,7 +83,7 @@ class EmailProcessor:
                 os.makedirs(MAIL_HANDLED_DIR)
             shutil.move(self.email_path, os.path.join(MAIL_HANDLED_DIR, self.email_filename))
 
-            archive(False, scam_email, bait_email, res_text, MessengerOptions.EMAIL, subject)
+            Archiver.archive(False, scam_email, bait_email, res_text, MessengerOptions.EMAIL, subject)
 
     def handle_email(self):
         text = self.email_obj["content"]

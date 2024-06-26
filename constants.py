@@ -8,6 +8,8 @@ RECEIVER_EMAIL = "ce1@live.de"
 # PATH
 MAIL_TEMPLATE = 'services/mailgun/template.html'
 LOG_PATH = "data/app.log"
+ID_PATH = "data/ids.json"
+ARCHIVE_DIR = "data/archive"
 ## MODEL PATH
 MODEL_HISTORY_PATH = "./models/history.json"
 NEO_ENRON_PATH = "./models/neo_enron"
