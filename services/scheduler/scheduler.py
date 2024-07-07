@@ -14,7 +14,7 @@ class Scheduler:
 
     def scheduled_task(self, scammer):
         if scammer.should_respond():
-            delay = random.uniform(5, 30)*60  # Random delay between 5 and 30 minutes
+            delay = random.uniform(5, 30) * 60  # Random delay between 5 and 30 minutes
             time.sleep(delay)
             self.respond_scammer(scammer)
         else:
@@ -26,4 +26,4 @@ class Scheduler:
 
         while True:
             schedule.run_pending()
-            time.sleep(5*60) # Check every 5 minutes
+            time.sleep(5 * 60)  # Check every 5 minutes

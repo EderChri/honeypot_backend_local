@@ -1,3 +1,5 @@
+# CONF
+IO_TYPE = "File"  # used to switch between file and database, currently only file supported
 # MAIL
 MAIL_SAVE_DIR = "data/emails/queued"
 MAIL_ARCHIVE_DIR = "data/emails/archive"

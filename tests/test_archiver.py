@@ -23,7 +23,8 @@ def setup_teardown():
 
 
 def run_archive_test(is_inbound, scam_id, response_id, body, medium, subject=None):
-    Archiver.archive(is_inbound, scam_id, response_id, body, medium, subject)
+    archiver = Archiver()
+    archiver.archive(is_inbound, scam_id, response_id, body, medium, subject)
 
     unique_scam_id = get_unique_scam_id(scam_id)
     archive_filename = os.path.join(ARCHIVE_DIR, f"{unique_scam_id}.json")
@@ -63,7 +64,7 @@ def run_archive_test(is_inbound, scam_id, response_id, body, medium, subject=Non
         "OUTBOUND EMAIL"
     ]
 )
-@patch('services.archiver.archiver.ARCHIVE_DIR', ARCHIVE_DIR)
+@patch('services.io_utils.filewriter.ARCHIVE_DIR', ARCHIVE_DIR)
 def test_archive(setup_teardown,is_inbound, scam_id, response_id, body, medium, subject):
     run_archive_test(is_inbound, scam_id, response_id, body, medium,
                      subject)

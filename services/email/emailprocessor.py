@@ -28,7 +28,8 @@ class EmailProcessor:
             os.remove(self.email_path)
             return
 
-        Archiver.archive(True, scam_email, "CRAWLER", text, MessengerOptions.EMAIL, self.email_obj["title"])
+        archiver = Archiver()
+        archiver.archive(True, scam_email, "CRAWLER", text, MessengerOptions.EMAIL, self.email_obj["title"])
 
         print("This email is just crawled, using random replier")
         replier = responder.get_replier_by_name("MailReplier")
@@ -82,8 +83,8 @@ class EmailProcessor:
             if not os.path.exists(MAIL_HANDLED_DIR):
                 os.makedirs(MAIL_HANDLED_DIR)
             shutil.move(self.email_path, os.path.join(MAIL_HANDLED_DIR, self.email_filename))
-
-            Archiver.archive(False, scam_email, bait_email, res_text, MessengerOptions.EMAIL, subject)
+            archiver = Archiver()
+            archiver.archive(False, scam_email, bait_email, res_text, MessengerOptions.EMAIL, subject)
 
     def handle_email(self):
         text = self.email_obj["content"]

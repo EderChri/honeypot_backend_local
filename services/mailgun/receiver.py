@@ -32,4 +32,5 @@ def on_receive(data):
     with open(f"{MAIL_SAVE_DIR}/{filename}", "w", encoding="utf8") as f:
         json.dump(res, f)
 
-    Archiver.archive(True, res["from"], res["bait_email"], res["content"], MessengerOptions.EMAIL, res["title"])
+    archiver = Archiver()
+    archiver.archive(True, res["from"], res["bait_email"], res["content"], MessengerOptions.EMAIL, res["title"])
