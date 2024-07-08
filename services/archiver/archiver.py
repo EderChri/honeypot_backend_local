@@ -1,16 +1,17 @@
 import time
 from constants import IO_TYPE
 from utils.structures import MessengerOptions
-from utils.storage_utils import get_unique_scam_id
 from services.io_utils.writer_factory import WriterFactory
+from services.io_utils.loader_factory import LoaderFactory
 
 
 class Archiver:
     def __init__(self):
         self.writer = WriterFactory.get_writer(IO_TYPE)
+        self.loader = LoaderFactory.get_loader(IO_TYPE)
 
     def archive(self, is_inbound, scam_id, response_id, body, medium, subject=None):
-        unique_scam_id = get_unique_scam_id(scam_id)
+        unique_scam_id = self.loader.get_unique_scam_id(scam_id)
 
         archive_content = {
             "direction": "Inbound" if is_inbound else "Outbound",

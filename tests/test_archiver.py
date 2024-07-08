@@ -4,7 +4,8 @@ import pytest
 from services.archiver import Archiver
 from unittest.mock import patch
 from utils.structures import MessengerOptions
-from utils.storage_utils import get_unique_scam_id
+from constants import IO_TYPE
+from services.io_utils.loader_factory import LoaderFactory
 
 ARCHIVE_DIR = "test_archive"
 
@@ -26,7 +27,7 @@ def run_archive_test(is_inbound, scam_id, response_id, body, medium, subject=Non
     archiver = Archiver()
     archiver.archive(is_inbound, scam_id, response_id, body, medium, subject)
 
-    unique_scam_id = get_unique_scam_id(scam_id)
+    unique_scam_id = LoaderFactory.get_loader(IO_TYPE).get_unique_scam_id(scam_id)
     archive_filename = os.path.join(ARCHIVE_DIR, f"{unique_scam_id}.json")
     history_filename = os.path.join(ARCHIVE_DIR, f"{unique_scam_id}.his")
 

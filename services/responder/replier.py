@@ -4,8 +4,8 @@ from abc import ABC
 from utils.text_utils.text_filter import *
 from .gen import gen_text
 from constants import ARCHIVE_DIR, MAIL_PROMPT, WA_PROMPT, IG_PROMPT, \
-    FB_PROMPT
-from utils.storage_utils import get_unique_scam_id
+    FB_PROMPT, IO_TYPE
+from services.io_utils.loader_factory import LoaderFactory
 
 text_filters = [
     RemoveSymbolLineTextFilter(),
@@ -24,6 +24,7 @@ class Replier(ABC):
         self.name = name
         self.prompt_prefix = prompt_prefix
         self.model_path = model_path
+        self.loader = LoaderFactory.get_loader(IO_TYPE)
 
     def _gen_text(self, prompt) -> str:
         print(f"Generating reply using {self.name}")
@@ -46,7 +47,7 @@ class Replier(ABC):
         return res
 
     def get_reply_by_his(self, addr):
-        unique_scam_id = get_unique_scam_id(addr)
+        unique_scam_id = self.loader.get_unique_scam_id(addr)
         with open(os.path.join(ARCHIVE_DIR, unique_scam_id + ".his"), "r", encoding="utf8") as f:
             content = f.read()
         return self.get_reply(content + "\n[response_start]\n")
