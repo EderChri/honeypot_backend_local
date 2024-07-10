@@ -9,7 +9,7 @@ from langdetect import detect, LangDetectException
 from collections import namedtuple
 import re
 
-from constants import MAIL_SAVE_DIR, CRAWLER_PROG_DIR, MAX_PAGE
+from constants import QUEUE_DIR, CRAWLER_PROG_DIR, MAX_PAGE
 
 URL = "https://www.scamsurvivors.com/forum/viewforum.php?f=6"
 BASE_URL = "https://www.scamsurvivors.com/forum/"
@@ -19,8 +19,8 @@ s = session()
 
 TopicInfo = namedtuple("TopicInfo", ["scam_addr", "url"])
 
-if not os.path.exists(MAIL_SAVE_DIR):
-    os.makedirs(MAIL_SAVE_DIR)
+if not os.path.exists(QUEUE_DIR):
+    os.makedirs(QUEUE_DIR)
 
 if not os.path.exists(CRAWLER_PROG_DIR):
     os.makedirs(CRAWLER_PROG_DIR)
@@ -124,7 +124,7 @@ def fetch():
         info = {"title": title, "content": content, "url": topic_info.url, "from": topic_info.scam_addr.lower()}
 
         file_name = topic_info.url.rsplit("/", 1)[1].split("&")[1].replace("t=", "ss_")
-        output_path = f"{MAIL_SAVE_DIR}/{file_name}.json"
+        output_path = f"{QUEUE_DIR}/{file_name}.json"
 
         with open(output_path, "w", encoding="utf8") as f:
             json.dump(info, f, indent=4)

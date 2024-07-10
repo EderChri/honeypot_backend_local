@@ -1,11 +1,13 @@
 import json
 import os
+import shutil
 
-from constants import ARCHIVE_DIR, ID_PATH
+from constants import ARCHIVE_DIR, ID_PATH, HANDLED_DIR, QUEUE_DIR
 from services.io_utils.writer import Writer
 from services.io_utils.fileloader import FileLoader
 import logging
 from utils.logging_utils import initialise_logging_config
+
 
 class FileWriter(Writer):
     def write_full_data(self, scam_id, archive_content):
@@ -36,3 +38,17 @@ class FileWriter(Writer):
 
         initialise_logging_config()
         logging.getLogger().trace(f"Added {unique_scam_id} to {scam_id}")
+
+    def move_from_queued_to_handled(self, scam_id):
+        unique_scam_id = FileLoader().get_unique_scam_id(scam_id)
+        os.makedirs(HANDLED_DIR, exist_ok=True)
+        shutil.move(os.path.join(QUEUE_DIR, f"{unique_scam_id}.json"),
+                    os.path.join(HANDLED_DIR, f"{unique_scam_id}.json"))
+        initialise_logging_config()
+        logging.getLogger().trace(f"Moved {scam_id} to handled")
+
+    def remove_scam_from_queue(self, scam_id):
+        unique_scam_id = FileLoader().get_unique_scam_id(scam_id)
+        os.remove(os.path.join(QUEUE_DIR, f"{unique_scam_id}.json"))
+        initialise_logging_config()
+        logging.getLogger().trace(f"Removed {scam_id} from queue")

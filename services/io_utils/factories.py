@@ -1,4 +1,5 @@
 from services.io_utils.fileloader import FileLoader
+from services.io_utils.filewriter import FileWriter
 
 
 class LoaderFactory:
@@ -8,3 +9,12 @@ class LoaderFactory:
             return FileLoader()
         else:
             raise ValueError("Unsupported loader type")
+
+
+class WriterFactory:
+    @staticmethod
+    def get_writer(writer_type):
+        if writer_type == "File":
+            return FileWriter()
+        else:
+            raise ValueError("Unsupported writer type")

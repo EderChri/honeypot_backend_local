@@ -1,4 +1,4 @@
-from constants import MAIL_SAVE_DIR
+from constants import QUEUE_DIR
 from secret import DOMAIN_NAME
 import json
 import os
@@ -26,11 +26,11 @@ def on_receive(data):
     if "stripped-signature" in data_cleaned:
         res["content"] += "\n" + data_cleaned["stripped-signature"]
 
-    if not os.path.exists(MAIL_SAVE_DIR):
-        os.makedirs(MAIL_SAVE_DIR)
+    if not os.path.exists(QUEUE_DIR):
+        os.makedirs(QUEUE_DIR)
 
-    with open(f"{MAIL_SAVE_DIR}/{filename}", "w", encoding="utf8") as f:
+    with open(f"{QUEUE_DIR}/{filename}", "w", encoding="utf8") as f:
         json.dump(res, f)
 
     archiver = Archiver()
-    archiver.archive(True, res["from"], res["bait_email"], res["content"], MessengerOptions.EMAIL, res["title"])
+    archiver.archive(True, res["from"], res["bait_email"], res["content"], None, MessengerOptions.EMAIL, res["title"])

@@ -5,7 +5,7 @@ from services.archiver import Archiver
 from unittest.mock import patch
 from utils.structures import MessengerOptions
 from constants import IO_TYPE
-from services.io_utils.loader_factory import LoaderFactory
+from services.io_utils.factories import LoaderFactory
 
 ARCHIVE_DIR = "test_archive"
 

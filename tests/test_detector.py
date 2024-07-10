@@ -31,10 +31,16 @@ def test_predict_switch(mock_openai_client):
     )
 
 
-def test_predict_switch_error(mock_openai_client):
+def test_predict_switch_error(mock_openai_client, caplog):
     mock_openai_client.chat.completions.create.side_effect = Exception("Sample error")
 
     input_text = "Sample text"
 
-    with pytest.raises(Exception):
-        MessengerSwitchDetector.predict_switch(input_text)
+    result = MessengerSwitchDetector.predict_switch(input_text)
+
+    assert result.switch == False  # Assuming DetectionTuple has attributes switch and messenger
+    assert result.messenger == MessengerOptions.OTHER
+
+    # Verify that the exception was logged
+    assert "An error occurred in messenger_switch_detector" in caplog.text
+    assert "Sample error" in caplog.text

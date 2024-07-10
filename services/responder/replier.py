@@ -5,7 +5,7 @@ from utils.text_utils.text_filter import *
 from .gen import gen_text
 from constants import ARCHIVE_DIR, MAIL_PROMPT, WA_PROMPT, IG_PROMPT, \
     FB_PROMPT, IO_TYPE
-from services.io_utils.loader_factory import LoaderFactory
+from services.io_utils.factories import LoaderFactory
 
 text_filters = [
     RemoveSymbolLineTextFilter(),

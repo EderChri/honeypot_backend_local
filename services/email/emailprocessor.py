@@ -3,7 +3,8 @@ import json
 import shutil
 import traceback
 
-from constants import MAIL_SAVE_DIR, MAIL_HANDLED_DIR
+from constants import IO_TYPE
+from services.io_utils.factories import WriterFactory, LoaderFactory
 from services import solution_manager, responder, mailgun
 from services.archiver import Archiver
 from utils.structures import MessengerOptions
@@ -12,9 +13,9 @@ from utils.structures import MessengerOptions
 class EmailProcessor:
     def __init__(self, email_filename):
         self.email_filename = email_filename
-        self.email_path = os.path.join(MAIL_SAVE_DIR, email_filename)
-        with open(self.email_path, "r", encoding="utf8") as f:
-            self.email_obj = json.load(f)
+        self.writer = WriterFactory.get_writer(IO_TYPE)
+        self.loader = LoaderFactory.get_loader(IO_TYPE)
+        self.email_obj = self.loader.load_scam_data(email_filename)
 
     @staticmethod
     def add_re_to_subject(subject):
@@ -25,21 +26,16 @@ class EmailProcessor:
     def handle_crawled_email(self, scam_email, text, subject):
         if solution_manager.scam_exists(scam_email):
             print("This crawled email has been replied, ignoring")
-            os.remove(self.email_path)
+            self.writer.remove_scam_from_queue(scam_email)
             return
-
-        archiver = Archiver()
-        archiver.archive(True, scam_email, "CRAWLER", text, MessengerOptions.EMAIL, self.email_obj["title"])
 
         print("This email is just crawled, using random replier")
         replier = responder.get_replier_by_name("MailReplier")
         bait_email = solution_manager.gen_new_addr(scam_email, replier.name)
         stored_info = solution_manager.get_stored_info(bait_email, scam_email)
 
-        if stored_info is None:
-            print(f"Cannot find replier for {bait_email}")
-            os.remove(self.email_path)
-            return
+        archiver = Archiver()
+        archiver.archive(True, scam_email, "CRAWLER", text, MessengerOptions.EMAIL, self.email_obj["title"])
 
         self.generate_and_send_reply(stored_info, scam_email, replier, subject, bait_email)
 
@@ -49,7 +45,7 @@ class EmailProcessor:
 
         if stored_info is None:
             print(f"Cannot find replier for {bait_email}")
-            os.remove(self.email_path)
+            self.writer.remove_scam_from_queue(scam_email)
             return
 
         print(f"Found selected replier {stored_info.sol}")
@@ -57,7 +53,7 @@ class EmailProcessor:
 
         if replier is None:
             print("Replier Sol_name not found")
-            os.remove(self.email_path)
+            self.writer.remove_scam_from_queue(scam_email)
             return
 
         self.generate_and_send_reply(stored_info, scam_email, replier, subject, bait_email)
@@ -78,11 +74,7 @@ class EmailProcessor:
         send_result = mailgun.send_email(stored_info.username, stored_info.addr, scam_email, subject, res_text)
         if send_result:
             print(f"Successfully sent response to {scam_email}")
-
-            # Move to queued
-            if not os.path.exists(MAIL_HANDLED_DIR):
-                os.makedirs(MAIL_HANDLED_DIR)
-            shutil.move(self.email_path, os.path.join(MAIL_HANDLED_DIR, self.email_filename))
+            self.writer.move_from_queued_to_handled(scam_email)
             archiver = Archiver()
             archiver.archive(False, scam_email, bait_email, res_text, MessengerOptions.EMAIL, subject)
 

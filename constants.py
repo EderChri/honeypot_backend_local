@@ -1,10 +1,6 @@
 # CONF
 IO_TYPE = "File"  # used to switch between file and database, currently only file supported
 # MAIL
-MAIL_SAVE_DIR = "data/emails/queued"
-MAIL_ARCHIVE_DIR = "data/emails/archive"
-MAIL_HANDLED_DIR = "data/emails/handled"
-ADDR_SOL_PATH = "data/emails/record.json"
 SENDER_EMAIL = "j4759821@gmail.com"
 RECEIVER_EMAIL = "ce1@live.de"
 # PATH
@@ -12,6 +8,9 @@ MAIL_TEMPLATE = 'services/mailgun/template.html'
 LOG_PATH = "data/app.log"
 ID_PATH = "data/ids.json"
 ARCHIVE_DIR = "data/archive"
+HANDLED_DIR = "data/handled"
+QUEUE_DIR = "data/queued"
+MAIL_ADDR_PATH = "data/email_record.json"
 ## MODEL PATH
 MODEL_HISTORY_PATH = "./models/history.json"
 NEO_ENRON_PATH = "./models/neo_enron"

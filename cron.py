@@ -3,7 +3,7 @@ import sys
 import traceback
 
 from services import crawler
-from constants import MAIL_SAVE_DIR
+from constants import QUEUE_DIR
 from services.email.emailprocessor import EmailProcessor
 
 
@@ -11,7 +11,7 @@ def main(crawl=False):
     if crawl:
         crawler.fetch_all()
 
-    email_filenames = os.listdir(MAIL_SAVE_DIR)
+    email_filenames = os.listdir(QUEUE_DIR)
     for email_filename in email_filenames:
         try:
             print(f"Handling {email_filename}")

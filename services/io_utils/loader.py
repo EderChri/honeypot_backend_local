@@ -7,6 +7,10 @@ class Loader(ABC):
         pass
 
     @abstractmethod
+    def load_scam_data(self, scam_id):
+        pass
+
+    @abstractmethod
     def load_history(self, id):
         pass
 
@@ -15,5 +19,5 @@ class Loader(ABC):
         pass
 
     @abstractmethod
-    def get_unique_scam_id(self, scam_id):
+    def get_unique_scam_id(self, scam_id) -> str:
         pass

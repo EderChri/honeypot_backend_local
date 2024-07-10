@@ -1,8 +1,7 @@
 import time
 from constants import IO_TYPE
 from utils.structures import MessengerOptions
-from services.io_utils.writer_factory import WriterFactory
-from services.io_utils.loader_factory import LoaderFactory
+from services.io_utils.factories import WriterFactory, LoaderFactory
 
 
 class Archiver:

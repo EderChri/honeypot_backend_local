@@ -13,3 +13,11 @@ class Writer(ABC):
     @abstractmethod
     def add_scam_id(self, unique_scam_id, scam_id):
         pass
+
+    @abstractmethod
+    def move_from_queued_to_handled(self, scam_id):
+        pass
+
+    @abstractmethod
+    def remove_scam_from_queue(self, scam_id):
+        pass
