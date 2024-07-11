@@ -38,3 +38,9 @@ SWITCH_DETECTOR_PROMPT_PREFIX = "I will send you a message now, and if you think
 
 # LOGGING
 TRACE = 25
+
+# SCHEDULER
+PAUSE_TIME = 8  # in hours
+MIN_RESPONSE_WAIT = 0.5  # in hours
+MAX_RESPONSE_WAIT = 1.5  # in hours
+SCHEDULER_TYPE = "Simple"
