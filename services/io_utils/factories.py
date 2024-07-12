@@ -5,16 +5,18 @@ from services.io_utils.filewriter import FileWriter
 class LoaderFactory:
     @staticmethod
     def get_loader(loader_type):
-        if loader_type == "File":
-            return FileLoader()
-        else:
-            raise ValueError("Unsupported loader type")
+        match loader_type:
+            case "File":
+                return FileLoader()
+            case _:
+                raise ValueError("Unsupported loader type")
 
 
 class WriterFactory:
     @staticmethod
     def get_writer(writer_type):
-        if writer_type == "File":
-            return FileWriter()
-        else:
-            raise ValueError("Unsupported writer type")
+        match writer_type:
+            case "File":
+                return FileWriter()
+            case _:
+                raise ValueError("Unsupported writer type")

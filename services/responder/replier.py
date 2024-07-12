@@ -1,9 +1,9 @@
-import os.path
 from abc import ABC
 
+from utils.structures import MessengerOptions
 from utils.text_utils.text_filter import *
 from .gen import gen_text
-from constants import ARCHIVE_DIR, MAIL_PROMPT, WA_PROMPT, IG_PROMPT, \
+from constants import MAIL_PROMPT, WA_PROMPT, IG_PROMPT, \
     FB_PROMPT, IO_TYPE
 from services.io_utils.factories import LoaderFactory
 
@@ -46,28 +46,26 @@ class Replier(ABC):
 
         return res
 
-    def get_reply_by_his(self, addr):
-        unique_scam_id = self.loader.get_unique_scam_id(addr)
-        with open(os.path.join(ARCHIVE_DIR, unique_scam_id + ".his"), "r", encoding="utf8") as f:
-            content = f.read()
-        return self.get_reply(content + "\n[response_start]\n")
+    def get_reply_by_his(self, scam_id, is_unique_id=False):
+        loaded_history = self.loader.load_history(scam_id, is_unique_id=is_unique_id)
+        return self.get_reply(loaded_history + "\n[response_start]\n")
 
 
 class MailReplier(Replier):
     def __init__(self):
-        super().__init__("MailReplier", MAIL_PROMPT)
+        super().__init__(MessengerOptions.EMAIL, MAIL_PROMPT)
 
 
 class WhatsAppReplier(Replier):
     def __init__(self):
-        super().__init__("WhatsAppReplier", WA_PROMPT)
+        super().__init__(MessengerOptions.WHATSAPP, WA_PROMPT)
 
 
 class InstagramReplier(Replier):
     def __init__(self):
-        super().__init__("InstagramReplier", IG_PROMPT)
+        super().__init__(MessengerOptions.INSTAGRAM, IG_PROMPT)
 
 
 class FacebookReplier(Replier):
     def __init__(self):
-        super().__init__("FacebookReplier", FB_PROMPT)
+        super().__init__(MessengerOptions.FACEBOOK, FB_PROMPT)

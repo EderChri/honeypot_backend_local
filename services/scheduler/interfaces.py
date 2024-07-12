@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class Scheduler(ABC):
+class SchedulerInterface(ABC):
     @abstractmethod
     def get_pause_times(self, timestamp):
         pass

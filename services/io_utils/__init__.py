@@ -1,7 +1,6 @@
 from .filewriter import FileWriter
-from .loader import Loader
-from .writer import Writer
-from .factories import WriterFactory, LoaderFactory
+from .interfaces import LoaderInterface, WriterInterface
 from .fileloader import FileLoader
+from .factories import WriterFactory, LoaderFactory
 
-__all__ = ['FileWriter', 'Loader', 'Writer', 'WriterFactory', 'FileLoader', 'LoaderFactory']
+__all__ = ['FileWriter', 'LoaderInterface', 'WriterInterface', 'WriterFactory', 'FileLoader', 'LoaderFactory']

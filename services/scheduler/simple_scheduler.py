@@ -1,9 +1,9 @@
-from services.scheduler import Scheduler
+from services.scheduler import SchedulerInterface
 import random
 from datetime import datetime, timedelta
 
 
-class SimpleScheduler(Scheduler):
+class SimpleScheduler(SchedulerInterface):
     def __init__(self, pause_interval, min_response_wait, max_response_wait):
         self.pause_interval = pause_interval
         self.min_response_wait = min_response_wait * 60  # Convert to minutes
@@ -15,7 +15,7 @@ class SimpleScheduler(Scheduler):
         return pause_start, pause_end
 
     def get_next_response_time(self, timestamp, pause_start, pause_end):
-        dt = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+        dt = datetime.fromtimestamp(timestamp)
 
         minutes_to_add = random.randint(self.min_response_wait, self.max_response_wait)
         pause_start_dt = dt.replace(hour=pause_start, minute=0, second=0, microsecond=0)
@@ -32,4 +32,4 @@ class SimpleScheduler(Scheduler):
             if pause_start_dt <= next_response_time <= pause_end_dt:
                 next_response_time = pause_end_dt + timedelta(minutes=minutes_to_add)
 
-        return next_response_time.strftime("%Y-%m-%d %H:%M:%S")
+        return next_response_time

@@ -1,25 +1,37 @@
+import logging
 import os
 import sys
 import traceback
 
 from services import crawler
-from constants import QUEUE_DIR
+from constants import IO_TYPE
 from services.email.emailprocessor import EmailProcessor
+from services.io_utils.factories import LoaderFactory
+from utils.common import is_timestamp_in_past
+from utils.logging_utils import initialise_logging_config
+from utils.structures import MessengerOptions
 
 
 def main(crawl=False):
     if crawl:
         crawler.fetch_all()
 
-    email_filenames = os.listdir(QUEUE_DIR)
-    for email_filename in email_filenames:
-        try:
-            print(f"Handling {email_filename}")
-            processor = EmailProcessor(email_filename)
-            processor.handle_email()
-        except Exception as e:
-            print(e)
-            print(traceback.format_exc())
+    loader = LoaderFactory.get_loader(IO_TYPE)
+    initialise_logging_config()
+
+    try:
+        queued_responses = loader.load_schedule_queue()
+        for queued_response in queued_responses:
+            if is_timestamp_in_past(queued_response):
+                scheduled_response_metadata = loader.load_scheduled_response(queued_response)
+                match scheduled_response_metadata['switch_medium']:
+                    case MessengerOptions.EMAIL:
+                        logging.getLogger().trace(f"Handling {scheduled_response_metadata['scam_id']}")
+                        processor = EmailProcessor(scheduled_response_metadata['scam_id'], queued_response)
+                        processor.handle_email()
+    except Exception as e:
+        print(e)
+        print(traceback.format_exc())
 
 
 if __name__ == '__main__':

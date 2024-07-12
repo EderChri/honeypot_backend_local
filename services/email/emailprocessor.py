@@ -1,21 +1,29 @@
-import os
-import json
-import shutil
+import logging
+import time
 import traceback
 
-from constants import IO_TYPE
+import names
+
+from constants import IO_TYPE, SCHEDULER_TYPE, CRAWLER_FLAG
 from services.io_utils.factories import WriterFactory, LoaderFactory
-from services import solution_manager, responder, mailgun
+from services.scheduler import SchedulerFactory
+from services import responder
+from services.messengers import MessengerFactory
 from services.archiver import Archiver
-from utils.structures import MessengerOptions
+from utils.logging_utils import initialise_logging_config
+from utils.structures import MessengerOptions, Message, Conversation
+from utils.common import get_random_addr
 
 
 class EmailProcessor:
-    def __init__(self, email_filename):
-        self.email_filename = email_filename
+    def __init__(self, unique_scam_id, queued_response):
         self.writer = WriterFactory.get_writer(IO_TYPE)
         self.loader = LoaderFactory.get_loader(IO_TYPE)
-        self.email_obj = self.loader.load_scam_data(email_filename)
+        self.archiver = Archiver()
+        self.queued_response = queued_response
+        self.scheduler = SchedulerFactory.get_scheduler(SCHEDULER_TYPE)
+        self.conversation = self.loader.load_conversation(unique_scam_id, is_unique_id=True)
+        self.email_messenger = MessengerFactory.get_messenger(MessengerOptions.EMAIL)
 
     @staticmethod
     def add_re_to_subject(subject):
@@ -23,67 +31,74 @@ class EmailProcessor:
             subject = "Re: " + subject
         return subject
 
-    def handle_crawled_email(self, scam_email, text, subject):
-        if solution_manager.scam_exists(scam_email):
+    def handle_crawled_email(self):
+        scam_email = self.conversation.scam_ids[MessengerOptions.EMAIL]
+        text = self.conversation.messages[0].body
+        subject = self.conversation.messages[0].subject
+        if self.loader.scam_exists(scam_email):
             print("This crawled email has been replied, ignoring")
             self.writer.remove_scam_from_queue(scam_email)
             return
 
         print("This email is just crawled, using random replier")
         replier = responder.get_replier_by_name("MailReplier")
-        bait_email = solution_manager.gen_new_addr(scam_email, replier.name)
-        stored_info = solution_manager.get_stored_info(bait_email, scam_email)
+        bait_email = get_random_addr()
 
-        archiver = Archiver()
-        archiver.archive(True, scam_email, "CRAWLER", text, MessengerOptions.EMAIL, self.email_obj["title"])
+        message = Message(is_inbound=True, from_addr=scam_email, to_addr=CRAWLER_FLAG, time=int(time.time()),
+                          medium=MessengerOptions.EMAIL, body=text, subject=subject)
+        pause_start, pause_end = self.scheduler.get_pause_times()
+        conversation = Conversation(
+            unique_scam_id=self.loader.get_unique_scam_id(scam_email),
+            scam_ids={MessengerOptions.EMAIL: scam_email}, bait_ids={MessengerOptions.EMAIL: bait_email},
+            pause_start=pause_start, pause_end=pause_end,
+            already_queued=False, victim_name=names.get_first_name())
+        conversation.add_message(message)
+        self.conversation = conversation
+        self.archiver.archive_conversation(conversation)
 
-        self.generate_and_send_reply(stored_info, scam_email, replier, subject, bait_email)
+        self.generate_and_send_reply(replier, subject)
 
-    def handle_reply_email(self, scam_email, subject):
-        bait_email = self.email_obj["bait_email"]
-        stored_info = solution_manager.get_stored_info(bait_email, scam_email)
+    def handle_reply_email(self):
+        subject = self.conversation.messages[0].subject
 
-        if stored_info is None:
-            print(f"Cannot find replier for {bait_email}")
-            self.writer.remove_scam_from_queue(scam_email)
-            return
+        replier = responder.get_replier_by_name(MessengerOptions.EMAIL)
 
-        print(f"Found selected replier {stored_info.sol}")
-        replier = responder.get_replier_by_name(stored_info.sol)
+        self.generate_and_send_reply(replier, subject)
 
-        if replier is None:
-            print("Replier Sol_name not found")
-            self.writer.remove_scam_from_queue(scam_email)
-            return
+    def add_signature(self, res_text):
+        if self.conversation.victim_name is not None:
+            res_text += f"\nBest,\n{self.conversation.victim_name}"
+        else:
+            self.conversation.victim_name = names.get_first_name()
+            res_text += f"\nBest,\n{self.conversation.victim_name}"
+            self.archiver.archive_conversation(self.conversation)
+        return res_text
 
-        self.generate_and_send_reply(stored_info, scam_email, replier, subject, bait_email)
-
-    def generate_and_send_reply(self, stored_info, scam_email, replier, subject, bait_email):
+    def generate_and_send_reply(self, replier, subject):
         try:
-            res_text = replier.get_reply_by_his(scam_email)
+            res_text = replier.get_reply_by_his(self.conversation.unique_id, is_unique_id=True)
         except Exception as e:
             print("GENERATING ERROR")
             print(e)
             print(traceback.format_exc())
             print("Due to CUDA Error, stopping whole sequence")
             return
+        scam_email = self.conversation.scam_ids[MessengerOptions.EMAIL]
+        bait_email = self.conversation.bait_ids[MessengerOptions.EMAIL]
+        res_text = self.add_signature(res_text)
 
-        # Add Signature
-        res_text += f"\nBest,\n{stored_info.username}"
+        message = Message(False, bait_email, scam_email, time.time(),
+                          MessengerOptions.EMAIL, res_text, subject)
 
-        send_result = mailgun.send_email(stored_info.username, stored_info.addr, scam_email, subject, res_text)
+        send_result = self.email_messenger.send_message(message, self.conversation.victim_name)
         if send_result:
-            print(f"Successfully sent response to {scam_email}")
-            self.writer.move_from_queued_to_handled(scam_email)
-            archiver = Archiver()
-            archiver.archive(False, scam_email, bait_email, res_text, MessengerOptions.EMAIL, subject)
+            initialise_logging_config()
+            logging.getLogger().trace(f"Successfully sent response to {scam_email}")
+            self.conversation.add_message(message)
+            self.writer.move_from_queued_to_handled(self.conversation, self.queued_response)
 
     def handle_email(self):
-        text = self.email_obj["content"]
-        subject = self.add_re_to_subject(str(self.email_obj["title"]))
-        scam_email = self.email_obj["from"]
-
-        if "bait_email" not in self.email_obj:
-            self.handle_crawled_email(scam_email, text, subject)
+        if CRAWLER_FLAG == self.conversation.messages[-1].to_addr:
+            self.handle_crawled_email()
         else:
-            self.handle_reply_email(scam_email, subject)
+            self.handle_reply_email()

@@ -3,8 +3,9 @@ IO_TYPE = "File"  # used to switch between file and database, currently only fil
 # MAIL
 SENDER_EMAIL = "j4759821@gmail.com"
 RECEIVER_EMAIL = "ce1@live.de"
+CRAWLER_FLAG = "CRAWLER"
 # PATH
-MAIL_TEMPLATE = 'services/mailgun/template.html'
+MAIL_TEMPLATE = 'utils/template.html'
 LOG_PATH = "data/app.log"
 ID_PATH = "data/ids.json"
 ARCHIVE_DIR = "data/archive"
