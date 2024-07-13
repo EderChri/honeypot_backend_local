@@ -17,20 +17,17 @@ def test_get_pause_times(simple_scheduler):
 
 
 def test_get_next_response_time_during_pause(simple_scheduler):
-    timestamp = "2024-07-11 18:30:00"
+    timestamp = datetime.strptime("2024-07-11 18:30:00", "%Y-%m-%d %H:%M:%S").timestamp()
     pause_start, pause_end = 18, 2
 
     next_response_time = simple_scheduler.get_next_response_time(timestamp, pause_start, pause_end)
-    next_response_dt = datetime.strptime(next_response_time, "%Y-%m-%d %H:%M:%S")
     expected_pause_end = datetime.strptime("2024-07-12 02:00:00", "%Y-%m-%d %H:%M:%S")
-    assert next_response_dt > expected_pause_end
+    assert next_response_time > expected_pause_end
 
 
 def test_get_next_response_time_outside_pause(simple_scheduler):
-    timestamp = "2024-07-11 03:30:00"
-    pause_start, pause_end = 9, 17  # Example pause interval
+    timestamp = datetime.strptime("2024-07-11 03:30:00", "%Y-%m-%d %H:%M:%S").timestamp()
+    pause_start, pause_end = 9, 17
 
     next_response_time = simple_scheduler.get_next_response_time(timestamp, pause_start, pause_end)
-    next_response_dt = datetime.strptime(next_response_time, "%Y-%m-%d %H:%M:%S")
-    timestamp_dt = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
-    assert next_response_dt > timestamp_dt
+    assert next_response_time.timestamp() > timestamp
