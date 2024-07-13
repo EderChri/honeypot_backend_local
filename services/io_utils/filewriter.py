@@ -38,9 +38,6 @@ class FileWriter(WriterInterface):
 
                 f.write(his_content)
 
-    def write_schedule(self):
-        raise NotImplementedError
-
     def add_scam_id(self, unique_scam_id, scam_id):
         scam_ids = FileLoader().get_scam_ids()
         scam_ids[scam_id] = unique_scam_id
@@ -65,7 +62,7 @@ class FileWriter(WriterInterface):
         initialise_logging_config()
         logging.getLogger().trace(f"Removed {scam_id} from queue")
 
-    def add_scam_to_queue(self, scam_id, next_response_time, medium, switch_medium):
+    def schedule_response(self, scam_id, next_response_time, medium, switch_medium):
         unique_scam_id = FileLoader().get_unique_scam_id(scam_id)
         os.makedirs(QUEUE_DIR, exist_ok=True)
         with open(os.path.join(QUEUE_DIR, f"{next_response_time}.json"), "w", encoding="utf8") as f:

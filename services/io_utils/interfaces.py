@@ -26,7 +26,7 @@ class LoaderInterface(ABC):
         pass
 
     @abstractmethod
-    def get_unique_scam_id(self, scam_id, is_unique_id=False) -> str:
+    def get_unique_scam_id(self, scam_id) -> str:
         pass
 
     @abstractmethod
@@ -68,5 +68,5 @@ class WriterInterface(ABC):
         pass
 
     @abstractmethod
-    def add_scam_to_queue(self, scam_id, next_response_time, medium, switch_medium):
+    def schedule_response(self, scam_id, next_response_time, medium, switch_medium):
         pass

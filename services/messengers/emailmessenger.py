@@ -99,7 +99,7 @@ class EmailMessenger(MessengerInterface):
             initialise_logging_config()
             logging.getLogger().trace(f"Conversation {conversation.unique_id} is already queued, skipping")
         else:
-            self.writer.add_scam_to_queue(
+            self.writer.schedule_response(
                 message.from_addr,
                 next_response_time.timestamp(),
                 message.medium,
