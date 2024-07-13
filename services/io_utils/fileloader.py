@@ -98,7 +98,7 @@ class FileLoader(LoaderInterface):
                     try:
                         parser = ijson.parse(file)
                         for prefix, event, value in parser:
-                            if (prefix, event) == ('bait_ids.Email', 'string') and value == target_address:
+                            if (prefix, event) == ('victim_ids.Email', 'string') and value == target_address:
                                 return True
                     except Exception as e:
                         logging.getLogger().error(f"Error parsing JSON in file: {file_path}, error: {e}")

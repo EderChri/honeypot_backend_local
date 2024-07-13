@@ -73,7 +73,7 @@ class EmailMessenger(MessengerInterface):
         return Conversation(
             unique_scam_id=unique_scam_id,
             scam_ids={MessengerOptions.EMAIL: message.from_addr},
-            bait_ids={MessengerOptions.EMAIL: message.to_addr},
+            victim_ids={MessengerOptions.EMAIL: message.to_addr},
             pause_start=pause_start,
             pause_end=pause_end,
             already_queued=False,

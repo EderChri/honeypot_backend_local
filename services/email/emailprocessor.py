@@ -49,7 +49,7 @@ class EmailProcessor:
         pause_start, pause_end = self.scheduler.get_pause_times()
         conversation = Conversation(
             unique_scam_id=self.loader.get_unique_scam_id(scam_email),
-            scam_ids={MessengerOptions.EMAIL: scam_email}, bait_ids={MessengerOptions.EMAIL: bait_email},
+            scam_ids={MessengerOptions.EMAIL: scam_email}, victim_ids={MessengerOptions.EMAIL: bait_email},
             pause_start=pause_start, pause_end=pause_end,
             already_queued=False, victim_name=names.get_first_name())
         conversation.add_message(message)
@@ -84,7 +84,7 @@ class EmailProcessor:
             print("Due to CUDA Error, stopping whole sequence")
             return
         scam_email = self.conversation.scam_ids[MessengerOptions.EMAIL]
-        bait_email = self.conversation.bait_ids[MessengerOptions.EMAIL]
+        bait_email = self.conversation.victim_ids[MessengerOptions.EMAIL]
         res_text = self.add_signature(res_text)
 
         message = Message(False, bait_email, scam_email, time.time(),

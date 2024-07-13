@@ -46,7 +46,7 @@ def test_archive_message_without_unique_id(archiver, mock_loader, mock_writer):
 
 
 def test_archive_conversation(archiver, mock_writer):
-    conversation = Conversation(unique_scam_id="conv123", scam_ids={}, bait_ids={}, pause_start=0, pause_end=0,
+    conversation = Conversation(unique_scam_id="conv123", scam_ids={}, victim_ids={}, pause_start=0, pause_end=0,
                                 already_queued=False, victim_name="victim")
 
     archiver.archive_conversation(conversation)

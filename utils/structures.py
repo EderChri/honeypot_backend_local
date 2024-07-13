@@ -55,10 +55,10 @@ class Message:
 
 
 class Conversation:
-    def __init__(self, unique_scam_id, scam_ids, bait_ids, pause_start, pause_end, already_queued, victim_name):
+    def __init__(self, unique_scam_id, scam_ids, victim_ids, pause_start, pause_end, already_queued, victim_name):
         self.unique_id = unique_scam_id
         self.scam_ids = scam_ids
-        self.bait_ids = bait_ids
+        self.victim_ids = victim_ids
         self.pause_start = int(pause_start)
         self.pause_end = int(pause_end)
         self.already_queued = already_queued
@@ -70,7 +70,7 @@ class Conversation:
         conversation = cls(
             unique_scam_id=json_data["unique_id"],
             scam_ids=json_data.get("scam_ids", {}),
-            bait_ids=json_data.get("bait_ids", {}),
+            victim_ids=json_data.get("victim_ids", {}),
             pause_start=json_data["pause_start"],
             pause_end=json_data["pause_end"],
             already_queued=json_data["already_queued"],
@@ -93,7 +93,7 @@ class Conversation:
         return json.dumps({
             "unique_id": self.unique_id,
             "scam_ids": self.scam_ids,
-            "bait_ids": self.bait_ids,
+            "victim_ids": self.victim_ids,
             "pause_start": int(self.pause_start),
             "pause_end": int(self.pause_end),
             "already_queued": self.already_queued,
