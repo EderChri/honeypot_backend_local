@@ -1,4 +1,3 @@
-import logging
 import time
 import traceback
 
@@ -36,11 +35,11 @@ class EmailProcessor:
         text = self.conversation.messages[0].body
         subject = self.conversation.messages[0].subject
         if self.loader.scam_exists(scam_email):
-            print("This crawled email has been replied, ignoring")
+            log("This crawled email has been replied, ignoring")
             self.writer.remove_scam_from_queue(scam_email)
             return
 
-        print("This email is just crawled, using random replier")
+        log("This email is just crawled, using random replier")
         replier = responder.get_replier_by_name("MailReplier")
         bait_email = get_random_addr()
 
@@ -81,7 +80,7 @@ class EmailProcessor:
             log("GENERATING ERROR")
             log(e)
             log(traceback.format_exc())
-            print("Due to CUDA Error, stopping whole sequence")
+            log("Due to CUDA Error, stopping whole sequence")
             return
         scam_email = self.conversation.scam_ids[MessengerOptions.EMAIL]
         bait_email = self.conversation.victim_ids[MessengerOptions.EMAIL]

@@ -1,14 +1,6 @@
-import pytest
-from unittest.mock import patch
 from services.messenger_switch_detector.detector import MessengerSwitchDetector
 from services.messenger_switch_detector.structures import DetectionTuple, MessengerOptions
 from constants import SWITCH_DETECTOR_PROMPT_PREFIX
-
-
-@pytest.fixture
-def mock_openai_client():
-    with patch("services.messenger_switch_detector.detector.client") as mock_client:
-        yield mock_client
 
 
 def test_predict_switch(mock_openai_client):

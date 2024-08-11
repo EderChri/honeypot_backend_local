@@ -1,12 +1,5 @@
-import pytest
-from services.scheduler.factories import SchedulerFactory
 from datetime import datetime
-from constants import SCHEDULER_TYPE, PAUSE_TIME
-
-
-@pytest.fixture
-def simple_scheduler():
-    return SchedulerFactory.get_scheduler(SCHEDULER_TYPE)
+from constants import PAUSE_TIME
 
 
 def test_get_pause_times(simple_scheduler):
