@@ -5,7 +5,7 @@ import requests
 from constants import IO_TYPE, SCHEDULER_TYPE
 from secret import API_BASE_URL, API_KEY, DOMAIN_NAME
 from services.archiver import Archiver
-from utils.logging_utils import initialise_logging_config
+from utils.logging_utils import log
 from utils.structures import MessengerOptions, Message, Conversation
 from services.io_utils.factories import LoaderFactory, WriterFactory
 from services.scheduler import SchedulerFactory
@@ -96,8 +96,7 @@ class EmailMessenger(MessengerInterface):
             else MessengerOptions.EMAIL
         )
         if conversation.already_queued:
-            initialise_logging_config()
-            logging.getLogger().trace(f"Conversation {conversation.unique_id} is already queued, skipping")
+            log(f"Conversation {conversation.unique_id} is already queued, skipping")
         else:
             self.writer.schedule_response(
                 message.from_addr,
@@ -114,8 +113,7 @@ class EmailMessenger(MessengerInterface):
         else:
             target = message.to_addr
 
-        initialise_logging_config()
-        logging.getLogger().trace(f"Trying to send an email from {message.from_addr} to {message.to_addr}")
+        log(f"Trying to send an email from {message.from_addr} to {message.to_addr}")
 
         html_content = self.template.replace("{{{content}}}", message.body).replace("\n", "<br>")
 

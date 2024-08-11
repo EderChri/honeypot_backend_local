@@ -90,7 +90,7 @@ class Conversation:
             raise TypeError("Expected a Message instance")
 
     def to_json(self):
-        return json.dumps({
+        return {
             "unique_id": self.unique_id,
             "scam_ids": self.scam_ids,
             "victim_ids": self.victim_ids,
@@ -99,4 +99,4 @@ class Conversation:
             "already_queued": self.already_queued,
             "victim_name": self.victim_name,
             "messages": [message.to_json() for message in self.messages]
-        }, indent=4)
+        }

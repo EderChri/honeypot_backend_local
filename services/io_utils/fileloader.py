@@ -7,7 +7,7 @@ import ijson as ijson
 from constants import ID_PATH, ARCHIVE_DIR, MAIL_TEMPLATE, QUEUE_DIR
 from services.io_utils.interfaces import LoaderInterface
 import logging
-from utils.logging_utils import initialise_logging_config
+from utils.logging_utils import log
 from utils.structures import Conversation
 
 
@@ -75,8 +75,7 @@ class FileLoader(LoaderInterface):
             writer.add_scam_id(unique_scam_id, scam_id)
             scam_ids[scam_id] = unique_scam_id
 
-            initialise_logging_config()
-            logging.getLogger().trace(f"New unique scam id {scam_ids[scam_id]} added for {scam_id}")
+            log(f"New unique scam id {scam_ids[scam_id]} added for {scam_id}")
 
         return scam_ids[scam_id]
 

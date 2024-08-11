@@ -8,7 +8,7 @@ from constants import IO_TYPE
 from services.email.emailprocessor import EmailProcessor
 from services.io_utils.factories import LoaderFactory
 from utils.common import is_timestamp_in_past
-from utils.logging_utils import initialise_logging_config
+from utils.logging_utils import log
 from utils.structures import MessengerOptions
 
 
@@ -17,7 +17,6 @@ def main(crawl=False):
         crawler.fetch_all()
 
     loader = LoaderFactory.get_loader(IO_TYPE)
-    initialise_logging_config()
 
     try:
         queued_responses = loader.load_schedule_queue()
@@ -26,7 +25,7 @@ def main(crawl=False):
                 scheduled_response_metadata = loader.load_scheduled_response(queued_response)
                 match scheduled_response_metadata['switch_medium']:
                     case MessengerOptions.EMAIL:
-                        logging.getLogger().trace(f"Handling {scheduled_response_metadata['scam_id']}")
+                        log(f"Handling {scheduled_response_metadata['scam_id']}")
                         processor = EmailProcessor(scheduled_response_metadata['scam_id'], queued_response)
                         processor.handle_email()
     except Exception as e:

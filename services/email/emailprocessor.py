@@ -10,7 +10,7 @@ from services.scheduler import SchedulerFactory
 from services import responder
 from services.messengers import MessengerFactory
 from services.archiver import Archiver
-from utils.logging_utils import initialise_logging_config
+from utils.logging_utils import log
 from utils.structures import MessengerOptions, Message, Conversation
 from utils.common import get_random_addr
 
@@ -78,9 +78,9 @@ class EmailProcessor:
         try:
             res_text = replier.get_reply_by_his(self.conversation.unique_id, is_unique_id=True)
         except Exception as e:
-            print("GENERATING ERROR")
-            print(e)
-            print(traceback.format_exc())
+            log("GENERATING ERROR")
+            log(e)
+            log(traceback.format_exc())
             print("Due to CUDA Error, stopping whole sequence")
             return
         scam_email = self.conversation.scam_ids[MessengerOptions.EMAIL]
@@ -92,8 +92,7 @@ class EmailProcessor:
 
         send_result = self.email_messenger.send_message(message, self.conversation.victim_name)
         if send_result:
-            initialise_logging_config()
-            logging.getLogger().trace(f"Successfully sent response to {scam_email}")
+            log(f"Successfully sent response to {scam_email}")
             self.conversation.add_message(message)
             self.writer.move_from_queued_to_handled(self.conversation, self.queued_response)
 

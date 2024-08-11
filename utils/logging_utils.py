@@ -11,3 +11,8 @@ def initialise_logging_config():
     logging.addLevelName(TRACE, "TRACE")
     logging.basicConfig(filename=LOG_PATH, level=TRACE, format='%(asctime)s - %(levelname)s - %(message)s')
     logging.Logger.trace = trace
+
+
+def log(message):
+    initialise_logging_config()
+    logging.getLogger().trace(message)
